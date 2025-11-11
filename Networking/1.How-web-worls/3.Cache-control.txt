@@ -1,0 +1,56 @@
+Cache-Control– Short & Sweet 
+
+| What?| HTTP header that controls caching(browser, CDN, proxy). |
+|-----------|-------------------------------------------------------------|
+| Who sets it?| Server(in response). Client can *suggest* via Cache-Control: max-age=0 (force revalidate), but server decides. |
+| Where?| In HTTP Response Headers(not request, usually). |
+
+---
+
+Key Directives (Most Used)
+
+| Directive | Meaning |
+|-----------------|--------|
+| no-cache        | Don’t use stale cache; revalidatewith server every time. |
+| no-store        | Never cache(sensitive data). |
+| public          | Anyone (browser, CDN) can cache. |
+| private         | Only browsercan cache (not CDN). |
+| max-age=3600    | Cache for 1 hour(in seconds). (Both CDN, browser) |
+| must-revalidate | Once stale, must checkwith server. |
+
+---
+
+Example Response
+
+HTTP/1.1 200 OK
+Cache-Control: public, max-age=86400, must-revalidate
+
+
+→ Browser & CDN can cache this for 24 hours.  
+After 24h, must ask server: “Still fresh?”
+
+---
+
+Use? 
+Speed + Save Bandwidth 
+- First load: Download from server  
+- Next loads (within max-age): Instant from cache 
+- Huge for images, CSS, JS, APIs  
+
+---
+
+Pro Tip for FE Devs
+html
+<!-- Force no cache (dev only) -->
+<meta http-equiv="Cache-Control" content="no-cache, no-store">
+
+Or in JS:
+js
+fetch('/api/data', { cache: 'no-store' })  // Bypass cache
+
+
+---
+
+TL;DR:  
+Server sets Cache-Control in response→ tells browser/CDN how long to keep stuff.  
+Use it to make your site FAST.

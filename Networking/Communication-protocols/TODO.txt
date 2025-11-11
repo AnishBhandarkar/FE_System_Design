@@ -1,0 +1,12 @@
+1. Network model: OSI and other model
+2. Different layers and functionality, and list of protocols at each layer.
+3. HTTP 1/2/3, HTTPS
+4. TCP, UDP, QUIC
+5, SMTP, FTP
+6. Websocket
+7, TLS, DTLS
+
+(3 way handshake, 4 way handshake, stateless .....)
+
+
+

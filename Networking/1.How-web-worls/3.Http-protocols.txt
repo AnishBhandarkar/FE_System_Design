@@ -1,0 +1,64 @@
+HTTP - Hypertext Transfer Protocol
+
+Now the important part:
+Do we need a new TCP handshake for the next request?
+
+It depends on the HTTP version:
+
+---
+
+HTTP/1.0
+
+* Each request → new TCP connection.
+* Inefficient, since handshake happens every time.
+* Example: loading a page with 10 images = 10 TCP handshakes 😩
+
+---
+
+HTTP/1.1
+
+* Introduced persistent connections (a.k.a. *keep-alive*).
+* After the first handshake, the TCP connection stays open for multiple requests/responses.
+* The server can reuse the same connection for subsequent resources like CSS, JS, images.
+
+✅ So for example:
+
+
+GET /index.html
+GET /style.css
+GET /app.js
+
+
+All can reuse the same TCP connection (as long as the server supports keep-alive).
+
+---
+
+HTTP/2
+
+* Big upgrade. Uses a single TCP connection for multiple parallel streams.
+* Multiple requests and responses can flow simultaneously through one connection.
+* Greatly improves performance.
+
+✅ So: Only one TCP handshake per origin (like `example.com`), and all assets are multiplexed over it.
+
+---
+
+HTTP/3 (QUIC)
+
+* Uses UDP instead of TCP.
+* Removes handshake latency altogether.
+* Even faster connection setup and better performance on mobile networks.
+
+---
+
+⚙️ Summary:
+
+| HTTP Version  | TCP Handshake per Request? | Persistent Connection | Multiplexing |
+| ------------- | -------------------------- | --------------------- | ------------ |
+| HTTP/1.0      | ✅ Yes                      | ❌ No                  | ❌ No         |
+| HTTP/1.1      | ❌ Usually not              | ✅ Yes (keep-alive)    | ❌ No         |
+| HTTP/2        | ❌ No                       | ✅ Yes                 | ✅ Yes        |
+| HTTP/3 (QUIC) | ❌ No (uses UDP)            | ✅ Yes                 | ✅ Yes        |
+
+---
+

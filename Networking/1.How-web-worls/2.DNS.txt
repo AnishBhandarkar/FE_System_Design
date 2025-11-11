@@ -1,0 +1,186 @@
+What Is DNS?
+
+DNS (Domain Name System) is like the phonebook of the internet.
+
+* Humans use domain names: www.google.com
+* Computers use IP addresses: 142.250.190.68
+
+DNS translates domain names → IP addresses, so your browser knows which server to talk to.
+
+---
+
+⚙️ Step-by-Step: How DNS Works
+
+Let’s take the example:
+You type https://www.example.com in your browser.
+
+---
+
+🧩 Step 1: Check Browser Cache
+
+Your browser first checks if it already knows the IP address for www.example.com.
+If found (recently visited), it uses it directly — fastest path.
+
+If not → go to the next step.
+
+---
+
+🧠 Step 2: Check OS Cache
+
+Your operating system (Windows, macOS, Linux) maintains its own DNS cache.
+If found there → returned immediately.
+
+If not → next step.
+
+---
+
+🌍 Step 3: Check Local Resolver (Usually Your ISP or Router)
+
+Your device’s DNS resolver (configured in network settings or Wi-Fi) is contacted.
+Your device is given a DNS server IP by your network (DHCP).
+It could be:
+
+* Your router’s DNS forwarder
+* Or an external DNS like:
+
+  * Google DNS (8.8.8.8)
+  * Cloudflare DNS (1.1.1.1)
+  * ISP’s own DNS server
+
+If the resolver already knows the IP → it returns it.
+If not → it begins the recursive DNS lookup.
+
+---
+
+🔁 Step 4: Recursive DNS Lookup (The Core Process)
+
+Here’s how it unfolds:
+
+(1) Root DNS Server
+
+* Resolver asks a Root Server:
+
+  > “Hey, where can I find info for .com domains?”
+
+Root servers don’t know exact IPs — they return the Top-Level Domain (TLD) server’s address (for .com in this case).
+
+There are 13 logical root servers worldwide (named A to M), each with hundreds of actual replicas.
+
+---
+
+(2) TLD DNS Server
+
+The resolver then asks the .com TLD server:
+
+> “Where can I find info for example.com?”
+
+TLD server replies with the Authoritative DNS server for example.com.
+
+---
+
+(3) Authoritative DNS Server
+
+Now the resolver asks that authoritative server:
+
+> “What is the IP of www.example.com?”
+
+The authoritative server responds:
+
+> www.example.com → 93.184.216.34
+
+✅ That’s the final IP.
+
+---
+
+🧱 Step 5: Response Is Cached
+
+* Resolver caches the result (for a duration defined by TTL — Time To Live).
+* Your OS and browser also cache it.
+* Next time you or anyone nearby visits the same site → lookup is much faster.
+
+---
+
+🔄 Full Flow Summary
+
+
+Browser → OS Cache → Local Resolver
+→ Root Server
+→ TLD Server (.com)
+→ Authoritative Server (example.com)
+→ Returns IP Address
+→ Cache → HTTP Request Begins
+
+
+---
+
+🕒 Typical Latency
+
+* Cached DNS: <1 ms
+* Fresh DNS lookup: ~20–120 ms depending on network + resolver
+
+That’s why CDNs (like Cloudflare, Akamai) place DNS resolvers close to users — to make it fast.
+
+---
+
+🧭 Example in Action
+
+If you ping:
+
+
+ping google.com
+
+
+You’ll see something like:
+
+
+Pinging google.com [142.250.190.68]
+
+
+That IP came from your DNS resolver.
+
+---
+
+🧩 Types of DNS Records
+
+Each domain can have multiple records, each serving a different purpose:
+
+| Record Type | Description                                   | Example                                            |
+| ----------- | --------------------------------------------- | -------------------------------------------------- |
+| A       | IPv4 address                                  | example.com → 93.184.216.34                      |
+| AAAA    | IPv6 address                                  | example.com → 2606:2800:220:1:248:1893:25c8:1946 |
+| CNAME   | Alias (points to another domain)              | www → example.com                                |
+| MX      | Mail exchange server                          | example.com → mail.example.com                   |
+| TXT     | Text info (often for verification, SPF, DKIM) | v=spf1 include:_spf.google.com                   |
+| NS      | Nameserver records                            | ns1.exampledns.com                               |
+| PTR     | Reverse DNS lookup (IP → domain)              | 93.184.216.34 → example.com                      |
+
+---
+
+🧠 Real-World Insight
+
+* CDNs use smart DNS routing to direct you to the nearest server for speed.
+  (e.g., Cloudflare, Akamai, Fastly)
+* Load balancers can change DNS records dynamically.
+* DNS misconfigurations are a common cause of downtime.
+* DNS propagation (when you change DNS) can take hours worldwide due to caching.
+
+---
+
+🧾 Example Visualization
+
+
+[Browser]
+   ↓
+[OS Cache]
+   ↓
+[Local DNS Resolver (ISP or 8.8.8.8)]
+   ↓
+[Root Server]
+   ↓
+[TLD Server (.com)]
+   ↓
+[Authoritative Server (example.com)]
+   ↓
+[Returns IP: 93.184.216.34]
+   ↓
+[Browser connects to Server → HTTP request begins]

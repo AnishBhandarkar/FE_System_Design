@@ -1,0 +1,249 @@
+High-Level Overview
+
+When the browser receives an HTTP response, it starts a pipeline:
+
+
+HTML → Parse → DOM
+CSS  → Parse → CSSOM
+DOM + CSSOM → Render Tree
+Render Tree → Layout (Box positions & sizes)
+Layout → Paint (Colors, borders, text)
+Paint → Compositing → Display on screen
+
+
+This entire process is known as the Critical Rendering Path.
+
+---
+
+🧩 Step-by-Step: How the Browser Works Internally
+
+---
+
+🧾 1. Receiving the Response
+
+When the server sends back the HTML document:
+
+http
+HTTP/1.1 200 OK
+Content-Type: text/html
+
+<html>
+  <head>
+    <link rel="stylesheet" href="style.css">
+    <script src="app.js"></script>
+  </head>
+  <body>
+    <h1>Hello!</h1>
+  </body>
+</html>
+
+
+The browser receives this data as raw bytes → decodes them into text (based on charset, e.g. UTF-8).
+
+---
+
+🧱 2. HTML Parsing → DOM Tree
+
+The browser parses the HTML sequentially (top to bottom) and constructs the DOM (Document Object Model) — a tree representation of the HTML structure.
+
+Example:
+
+HTML:
+
+html
+<html>
+  <body>
+    <h1>Hello</h1>
+    <p>World</p>
+  </body>
+</html>
+
+
+Becomes a DOM Tree:
+
+
+Document
+ └── html
+      └── body
+           ├── h1
+           └── p
+
+
+---
+
+⚠️ Blocking Scripts
+
+If the parser encounters a <script> tag without defer or async, it pauses HTML parsing until the script is downloaded and executed.
+This is why JavaScript can block rendering.
+
+---
+
+🎨 3. CSS Parsing → CSSOM Tree
+
+At the same time, when the parser sees <link rel="stylesheet">, it fetches the CSS files and parses them into a CSS Object Model (CSSOM).
+
+Example CSS:
+
+css
+h1 { color: red; }
+p { font-size: 16px; }
+
+
+Becomes a CSSOM Tree:
+
+
+CSSOM
+ ├── h1 { color: red }
+ └── p { font-size: 16px }
+
+
+CSS parsing must be complete before the browser can render anything — because CSS defines *how things look*.
+
+So the browser waits until both DOM and CSSOM are ready.
+
+---
+
+🧩 4. DOM + CSSOM → Render Tree
+
+Once both are available, the browser combines them to create the Render Tree — this represents *what actually needs to be drawn* (visible elements only).
+
+For example:
+If an element has display: none; — it’s in the DOM, but not in the Render Tree.
+
+Render Tree Example:
+
+
+RenderTree
+ ├── h1 (color: red)
+ └── p (font-size: 16px)
+
+
+---
+
+📐 5. Layout (Reflow)
+
+Now the browser calculates each element’s exact position and size on the page.
+
+This step is called layout or reflow.
+
+It answers questions like:
+
+* Where does this element go?
+* How big should it be?
+* What’s its width/height after applying CSS rules, padding, margins, etc.?
+
+This is where the box model (content, padding, border, margin) is applied.
+
+---
+
+🖌️ 6. Painting
+
+Once layout is done, the browser paints each node on layers — filling in text, colors, borders, shadows, images, etc.
+
+This produces bitmaps (rasterized content).
+
+Think of painting as "coloring" your layout.
+
+---
+
+🧩 7. Compositing
+
+Modern browsers use multiple layers (e.g., for animations, transforms, z-index stacking, etc.).
+
+In the compositing step:
+
+* The browser’s compositor thread combines these layers into the final image.
+* GPU often handles this to speed up rendering.
+
+Finally, you see pixels on the screen.
+
+---
+
+🧠 Visualization: The Critical Rendering Path
+
+
+HTML  → Parse → DOM
+CSS   → Parse → CSSOM
+JS    → (can block DOM/CSSOM creation)
+DOM + CSSOM → Render Tree
+Render Tree → Layout → Paint → Composite → Display
+
+
+---
+
+⚡ Key Performance Concepts
+
+1. Render-blocking resources
+
+* CSS files block rendering until parsed.
+* JS files (without async/defer) block HTML parsing.
+
+🧩 Solution:
+
+* Use async or defer for scripts.
+* Minimize or inline critical CSS.
+
+---
+
+2. Reflow and Repaint
+
+* Reflow (Layout): occurs when size/position of elements changes.
+* Repaint: occurs when visual appearance (color, background) changes, but layout doesn’t.
+
+Reflows are more expensive than repaints.
+
+Example:
+
+js
+element.style.width = '200px'; // reflow + repaint
+element.style.background = 'red'; // only repaint
+
+
+---
+
+3. Hardware acceleration
+
+Some CSS properties (like transform, opacity) can trigger GPU compositing — smoother animations.
+
+---
+
+4. Progressive Rendering
+
+Browsers try to display visible content as early as possible.
+Example: Render above-the-fold (visible) content first.
+
+---
+
+🧱 Example in Real Life
+
+Let’s say your HTML loads:
+
+* index.html
+* style.css
+* main.js
+* hero.jpg
+
+1. Browser parses HTML → builds partial DOM.
+2. Encounters <link rel="stylesheet"> → fetches and parses CSS.
+3. Encounters <script> → pauses DOM parsing if not deferred.
+4. Once DOM + CSSOM ready → render tree built.
+5. Layout calculated.
+6. Paint happens.
+7. Composite layers → you see the final web page.
+
+All this happens in milliseconds.
+
+---
+
+🔍 Summary Table
+
+| Step | Name       | What Happens                 | Blocking?                 |
+| ---- | ---------- | ---------------------------- | ------------------------- |
+| 1    | Parse HTML | Build DOM                    | No (unless script blocks) |
+| 2    | Parse CSS  | Build CSSOM                  | Yes (render-blocking)     |
+| 3    | Combine    | Create Render Tree           | Needs both DOM + CSSOM    |
+| 4    | Layout     | Calculate positions/sizes    | Yes                       |
+| 5    | Paint      | Draw pixels                  | Yes                       |
+| 6    | Composite  | Merge layers, show on screen | Yes                       |
+
+
