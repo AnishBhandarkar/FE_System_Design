@@ -1,0 +1,185 @@
+REST - https://www.ibm.com/think/topics/rest-apis
+
+3-tier architecture - https://www.ibm.com/think/topics/three-tier-architecture
+
+
+==================================
+
+Building blocks.
+- URL
+- Methods
+- Headers
+- Status code
+
+
+1) URL:
+
+URL stands for  Uniform Resource Locator .
+It is the address you type in a browser to access a webpage or resource on the internet.
+
+Example:
+https://www.example.com:443/products?id=10#reviews
+ 
+
+---
+
+# 🔍  Parts of a URL (Explained Clearly) 
+
+Let’s break the URL into its parts:
+
+ 
+https://www.example.com:443/products?id=10#reviews
+|____| |______________| |__| |_______| |_____| |______|
+  |          |          |       |        |        |
+Scheme    Domain      Port    Path    Query    Fragment
+ 
+
+---
+
+1️⃣  Scheme / Protocol 
+https
+ 
+This tells the browser  how to communicate with the server.
+
+Common schemes:
+
+*  http  → unsecured website
+*  https  → secured website
+*  ftp  → file transfer
+*  mailto  → open email
+
+---
+
+2️⃣  Domain (Hostname) 
+
+www.example.com
+
+This is the address of the server where the website is stored.
+
+It can include:
+
+* Subdomain ( www )
+* Second-level domain ( example )
+* Top-level domain ( .com )
+
+Example:
+
+blog.store.github.io
+ 
+
+---
+
+3️⃣  Port (Optional) 
+
+:443
+
+Port is rarely typed manually. It tells which door on the server to connect to.
+
+Common ports:
+
+*  80  → HTTP
+*  443  → HTTPS
+*  21  → FTP
+
+If not mentioned, browser uses default.
+
+---
+
+4️⃣  Path 
+
+/products
+
+This is the  location of a specific page or file on the server.
+
+Examples:
+
+*  /about-us 
+*  /images/logo.png 
+*  /api/user/42 
+
+---
+
+5️⃣  Query Parameters 
+
+?id=10
+
+Used to send  data to the server .
+
+Format:
+
+ 
+?key=value&key2=value2
+ 
+
+Examples:
+
+* Search:  ?q=mobile 
+* Pagination:  ?page=2 
+* Filters:  ?category=laptop&price=low 
+
+---
+
+6️⃣  Fragment (Hash) 
+ 
+#reviews
+
+Identifies a  specific section of the page , not sent to the server.
+
+Examples:
+
+* Jump to paragraph on page
+* Jump to heading in documentation
+
+---
+
+# 📌 Final Summary
+
+| Part         | Example       | Meaning                |
+| ------------ | ------------- | ---------------------- |
+|  Scheme   |  https        | Communication protocol |
+|  Domain   |  example.com  | Website address        |
+|  Port     |  :443         | Server connection port |
+|  Path     |  /products    | Page/location          |
+|  Query    |  ?id=10       | Data for server        |
+|  Fragment |  #reviews     | Section of page        |
+
+
+
+==================================
+
+
+2. Methods:
+
+GET
+POST
+PUT
+PATCH
+DELETE
+HEAD
+OPTIONS
+TRACE
+CONNECT
+
+https://dev.to/hy_piyush/9-http-request-methods-explained-354i
+
+
+
+==================================
+
+
+3. Headers.
+
+https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers
+
+
+
+==================================
+
+
+4. Status code
+
+
+https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status
+
+
+==================================
