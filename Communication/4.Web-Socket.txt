@@ -1,0 +1,223 @@
+WebSockets provide a full-duplex, persistent communication channel between a client and a server. Unlike HTTP, which is a "request-response" model, WebSockets allow both parties to send data at any time without being asked.
+
+---
+
+1. When is it needed?
+
+WebSockets are the gold standard for High-Frequency, Low-Latency applications:
+
+* Real-time Collaboration: Google Docs (seeing someone else's cursor move).
+* Multiplayer Gaming: Positions and actions need to be synced every few milliseconds.
+* Financial Tickers: Stock prices or Crypto charts that update multiple times per second.
+* Live Chat/Social Feeds: Instant message delivery and "typing..." indicators.
+
+---
+
+2. Pros and Cons
+
+Pros:
+- Bidirectional: Server can push data to client without a request.
+- Low Overhead: After the initial handshake, the "header" of a message is only 2–10 bytes (HTTP is hundreds).
+- Real-time: Near-zero latency compared to polling.
+- Reduces unnecessary requests (unlike polling)
+
+
+Cons:
+- Stateful: The server must "remember" every connected user, making horizontal scaling harder.
+- No Native Reconnect: If the Wi-Fi drops, the connection dies. You must write your own logic to reconnect.
+- Complex Security: Harder to implement rate-limiting, load balancing, and authentication than standard REST.
+
+---
+
+3. How Protocol Switching Happens (The Handshake)
+
+WebSockets actually start as an HTTP request. This ensures they can pass through standard web ports (80/443). The transition is called the Protocol Upgrade.
+
+1. Client Request: The browser sends a standard GET request with special headers:
+* `Upgrade: websocket`
+* `Connection: Upgrade`
+* `Sec-WebSocket-Key: [Random Base64]`
+
+2. Server Response: If the server supports WebSockets, it responds with HTTP 101 Switching Protocols.
+
+3. The Switch: The HTTP connection is "upgraded" to a WebSocket. The TCP socket remains open, but they stop talking HTTP and start talking the Binary WebSocket protocol.
+
+4. And browser triggers "open" event.
+
+---
+
+4. Implementation in JavaScript
+
+> Server-Side (Node.js with `ws` library)
+
+const WebSocket = require('ws');
+const wss = new WebSocket.Server({ port: 8080 });
+
+wss.on('connection', (ws) => {
+  console.log('Client connected');
+
+  // Listen for messages from client
+  ws.on('message', (message) => {
+    console.log(`Received: ${message}`);
+    
+    // Echo back to client
+    ws.send(`Server received: ${message}`);
+  });
+
+  // Handle disconnection
+  ws.on('close', () => console.log('Client disconnected'));
+});
+
+
+
+> Client-Side (Native Browser API)
+
+const socket = new WebSocket('ws://localhost:8080'); // wss if https
+
+// Connection opened
+socket.addEventListener('open', (event) => {
+  console.log('Connected to server');
+  socket.send('Hello Server!');
+});
+
+// Listen for messages
+socket.addEventListener('message', (event) => {
+  console.log('Message from server:', event.data);
+});
+
+// Handle errors
+socket.addEventListener("error", (error) => {
+  console.error("WebSocket error:", error);
+});
+
+// Handle errors or closing
+socket.addEventListener('close', () => {
+  console.log('Disconnected from server');
+});
+
+
+
+---
+
+5. Best Practices (System Design Level)
+
+A. Heartbeats (Pings/Pongs):
+Sometimes a connection "zombies"—the browser thinks it's connected, but the server has dropped it.
+
+* Fix: Every 30 seconds, the server sends a "Ping." If the client doesn't reply with a "Pong," the server closes the connection to save memory.
+
+
+B. Authentication:
+Since you can't easily send custom headers in the native browser `new WebSocket()` call, you usually:
+
+1. Pass a token in the URL: `ws://api.com?token=xyz` (Careful: URLs are logged in server history).
+2. Use a ticket-based system: Request a one-time "ticket" via a standard POST request, then pass that ticket to the WebSocket.
+
+
+C. Scaling with a Pub/Sub (Redis):
+If you have two servers, User A on Server 1 cannot talk to User B on Server 2.
+
+* Fix: Use Redis Pub/Sub. When Server 1 gets a message, it publishes it to Redis. Server 2 is "listening" to Redis and pushes the message to User B.
+
+
+D. Sticky Sessions:
+If you use a Load Balancer (like Nginx), you must enable Sticky Sessions (Ip-hash). This ensures that the HTTP Handshake and the resulting WebSocket connection both go to the same server.
+
+
+
+---
+
+
+> 3 player multiplayer game analogy:
+
+Let’s map out how 3 players + server communicate using WebSockets in a step-by-step diagram. I’ll keep it simple and visual.
+
+---
+
+Step 0: Connections Established
+
+
+Player A ─── WebSocket ───┐
+Player B ─── WebSocket ───┤── Server
+Player C ─── WebSocket ───┘
+
+
+* Each player has a persistent connection to the server
+* Server tracks all connected players
+
+---
+
+Step 1: Player A Moves
+
+
+Player A sends: { type: "move", x:10, y:20 }
+
+Server receives → updates game state → broadcasts:
+
+Server → Player B: { type: "move", player:"A", x:10, y:20 }
+Server → Player C: { type: "move", player:"A", x:10, y:20 }
+
+
+* A doesn’t need to wait for a response
+* B and C instantly see A’s new position
+
+---
+
+Step 2: Player B Moves
+
+
+Player B sends: { type: "move", x:5, y:15 }
+
+Server receives → updates game state → broadcasts:
+
+Server → Player A: { type: "move", player:"B", x:5, y:15 }
+Server → Player C: { type: "move", player:"B", x:5, y:15 }
+
+
+* Same process repeats for every player action
+
+---
+
+Step 3: Handling Disconnects (Player C leaves)
+
+
+Player C disconnects → server triggers "close" event
+
+Server marks Player C as offline
+Server continues sending updates only to Player A & B
+
+
+* When Player C reconnects, server can send full game state so they catch up
+
+---
+
+Step 4: Continuous Flow
+
+
+Any Player Action → Server Updates → Broadcast to Other Players
+
+
+* Low latency
+* Persistent connection
+* Real-time synchronization
+
+---
+
+Visual Timeline (simplified)
+
+
+Time 0s: A moves → B & C see update
+Time 1s: B moves → A & C see update
+Time 2s: C disconnects → server marks offline
+Time 3s: A moves → B sees update
+Time 4s: C reconnects → server sends latest game state
+
+
+---
+
+🧠 Memory Tip:
+
+> WebSockets = continuous open channel → instant push → real-time sync
+
+---
+

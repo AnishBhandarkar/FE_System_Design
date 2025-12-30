@@ -1,0 +1,57 @@
+The "Thundering Herd" problem occurs when a large number of clients (like browsers or mobile apps) all send requests to a server at the exact same time.
+
+Even if your server is powerful enough to handle the total volume of traffic per minute, it might crash if that entire volume arrives in a single millisecond "spike."
+
+---
+
+1. How the "Herd" forms
+
+Imagine you have 10,000 users polling your API every 60 seconds. Normally, their requests are spread out naturally (User A joined at 12:00:01, User B at 12:00:15, etc.).
+
+The "Thundering Herd" is usually triggered by a synchronized event:
+
+* Server Recovery: Your server goes down for 30 seconds. During that time, 10,000 clients are failing their requests. When the server comes back online, all 10,000 clients immediately retry at the same time.
+
+* The "Scheduled" Spike: If you tell your frontend to "Refresh data every hour on the hour," every single user's browser will hit your server at exactly 12:00:00.000.
+
+* Cache Invalidation: If a high-traffic cache expires, thousands of requests that were being "shielded" by the cache suddenly rush to the database at once.
+
+---
+
+2. Why it’s dangerous
+
+If 10,000 requests hit at once:
+
+1. CPU/RAM Spikes: The server's resources hit 100% instantly.
+2. Database Locking: The database can't handle 10,000 simultaneous connections or queries, leading to timeouts.
+3. The "Death Spiral": The server crashes because of the load  the clients fail  the clients retry 5 seconds later  the server crashes again. This loop repeats forever.
+
+---
+
+3. The Solution: Jitter
+
+Jitter is simply adding a bit of randomness to your timers to "de-synchronize" the clients.
+
+Instead of every client waiting exactly 5 seconds:
+
+* Client A waits 5.2s
+* Client B waits 4.8s
+* Client C waits 5.5s
+
+Over a few cycles, the 10,000 requests that were "bunched up" in a single millisecond become a smooth, flat line of traffic that is much easier for your backend to digest.
+
+#The Logic
+
+Instead of:
+Delay = CurrentDelay
+
+You use:
+Delay = CurrentDelay + random(0, JitterRange)
+
+
+---
+
+Real-World Summary
+
+* Thundering Herd: A traffic jam where everyone tries to enter the highway at the exact same second.
+* Jitter: A "metering light" at the highway entrance that lets cars in at slightly different intervals to prevent the jam.

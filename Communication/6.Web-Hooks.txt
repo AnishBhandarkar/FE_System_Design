@@ -1,0 +1,144 @@
+Webhooks are often called "Reverse APIs" or "Push Notifications for Servers." While a standard API is where you ask a server for data, a Webhook is where a server tells you that something happened.
+
+A webhook is a way for a server to notify another server about an event automatically via HTTP.
+
+---
+
+1. How it was done before: The Polling Era
+
+Before Webhooks became the standard, the only way for your system to know if an event occurred in a third-party service (like a payment being completed) was through Polling.
+
+* The Workflow: Your server would ask the third-party API every 5 minutes: "Is order 123 paid yet?"
+* The Waste: 99% of those requests would return "No." This wasted CPU, bandwidth, and API rate limits.
+* The Lag: If the payment happened 1 second after your last poll, you wouldn't know for another 4 minutes and 59 seconds.
+
+---
+
+2. When is it needed?
+
+Webhooks are essential for Asynchronous Events—things that happen outside of your application's immediate control.
+
+* Payment Gateways: (Stripe/PayPal) "The subscription was renewed."
+* Version Control: (GitHub/GitLab) "A new commit was pushed."
+* CI/CD: "The build succeeded; you can now deploy."
+* E-commerce: (Shopify) "A customer just placed an order."
+
+---
+
+3. Pros and Cons
+
+Pros:
+- Efficient: No wasted requests; the server only talks when there is news.
+- Real-time: Updates happen the moment the event occurs.
+- Decoupled: The two systems don't need to know anything about each other's internals.
+
+Cons:
+- Inbound Access: You must expose a public URL for the third party to hit.
+- Security: Anyone can hit your URL, so you must verify the source.
+- Delivery Failure: If your server is down, you might miss the event (unless they retry).
+
+---
+
+4. How Webhooks Work (High-Level Flow):
+- Receiver (your server) exposes a URL endpoint
+- Sender (external service) sends an HTTP POST request to that URL whenever an event occurs
+- Receiver processes the event and responds with HTTP 200 OK
+- If the response fails, sender retries (depends on sender’s retry policy)
+
+---
+
+5. Implementation in JavaScript (Node.js/Express)
+
+Since Webhooks are Server-to-Server, the "Client" in this scenario is actually the service sending the event (e.g., Stripe), and the "Server" is your backend.
+
+> The Receiver (Your Server)
+
+Your server needs a specific route (endpoint) to listen for the POST request.
+
+
+const express = require('express');
+const crypto = require('crypto');
+const app = express();
+
+// Use express.raw() for the webhook route to verify signatures
+app.post('/webhook/payment-success', express.json(), (req, res) => {
+    const signature = req.headers['x-webhook-signature'];
+    const secret = 'your_shared_secret'; // In reality, get this from env variables
+
+    // 1. Security Check (HMAC Verification)
+    const expectedSignature = crypto
+        .createHmac('sha256', secret)
+        .update(JSON.stringify(req.body))
+        .digest('hex');
+
+    if (signature !== expectedSignature) {
+        return res.status(401).send('Invalid signature');
+    }
+
+    // 2. Process the data
+    const event = req.body;
+    console.log(`Payment received for Order ID: ${event.orderId}`);
+
+    // 3. Respond with 200 immediately to acknowledge receipt
+    res.status(200).send('Webhook Received');
+});
+
+app.listen(3000, () => console.log('Listening for webhooks...'));
+
+--
+
+> The Sender (The Third-Party Service)
+
+This is how a service like Stripe would "call" your webhook.
+
+
+const axios = require('axios');
+const crypto = require('crypto');
+
+const data = { orderId: '9876', amount: 49.99, status: 'PAID' };
+const secret = 'your_shared_secret';
+
+// Sign the payload so the receiver knows it's really us
+const signature = crypto
+    .createHmac('sha256', secret)
+    .update(JSON.stringify(data))
+    .digest('hex');
+
+axios.post('https://your-app.com/webhook/payment-success', data, {
+    headers: { 'x-webhook-signature': signature }
+})
+.then(() => console.log('Webhook sent successfully'))
+.catch(err => console.error('Webhook failed, will retry in 5 mins...'));
+
+
+
+---
+
+5. Challenges & Best Practices
+
+* Idempotency: Sometimes a provider sends the same webhook twice (e.g., if their first attempt timed out even though you processed it). Always check if you have already processed that specific event ID in your database.
+
+* Security (HMAC): Never trust a webhook without a signature. Without HMAC verification, a hacker could simply send a POST request to your `/webhook` endpoint saying "Order #1 is paid" and get free stuff.
+
+* Acknowledge Quickly: Webhook senders usually have a timeout (e.g., 5-10 seconds). Do not perform heavy logic (like generating a PDF) inside the webhook route. Receive it, save it to a database/queue, and send a `200 OK` immediately.
+
+* Retry Logic: If your server returns a `500` error, good providers will retry with an Exponential Backoff (1 min, 5 mins, 30 mins).
+
+---
+
+How this reaches the Frontend?
+
+To complete the loop for your user:
+
+1. Stripe sends a Webhook to your Backend.
+2. Your Backend updates the database.
+3. Your Backend tells the Frontend the payment is clear using WebSockets or SSE (since the user is likely still on the "Waiting for Payment" page).
+
+i.e Server will have updated info from 3rd party. But server itself can’t tell frontend, so either client needs to poll or SSE/WebSocket needs to be used.
+
+
+---
+
+Model:
+3rd party → webhook → backend
+backend → (polling / SSE / WS) → frontend

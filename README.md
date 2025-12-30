@@ -4,3 +4,11 @@
 - How Web works
 - Communication protocols
 - Rest
+
+
+## Communication
+- Short polling
+- Long polling
+- Websocket
+- Server sent events
+- WebHooks

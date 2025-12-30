@@ -1,0 +1,79 @@
+When you're designing a high-scale frontend, you have to choose the right communication pattern based on latency, frequency of updates, and server load.
+
+---
+
+1. Client-to-Server Communication
+
+Technique | Direction | Best For | Trade-off
+
+1. Short Polling
+- Client → Server
+- Non-critical updates (e.g., delivery status).
+- High overhead; "chatty" network.
+
+2. Long Polling
+- Client → Server
+- Simple real-time (e.g., chat apps).
+- Holds server resources (connections) open.
+
+3. SSE (Server-Sent Events)
+- Server → Client
+- News feeds, stock tickers, dashboards.
+- Unidirectional (Server to Client only).
+
+4. WebSockets         
+- Bidirectional
+- Multiplayer games, collaborative tools.
+- Complex to scale; stateful server required.
+
+5. Webhooks
+- Server → Server (External to Internal) [Not from browser]
+- 3rd-party integrations (Stripe payments, GitHub commits, Shopify orders).
+- Security Risk: Your endpoint is public. Duplicates: You must handle "at-least-once" delivery (idempotency).
+
+---
+
+2. Inter-Component Communication (State)
+
+Inside the app, components need to talk to each other. How you design this affects the maintainability of your system.
+
+* Props & Callbacks:The "standard" way. Data flows down, actions flow up.
+* Problem: Prop Drilling(passing data through 10 components that don't need it).
+
+
+* Context API / State Management:(Redux, Zustand, Recoil). A central "store" that any component can subscribe to.
+* System Design Tip: Use this for "Global" data (User Auth, Theme) but keep "Local" data (Form input) in the component to avoid unnecessary re-renders.
+
+
+* Event Bus (Pub/Sub):Components emit events, and others listen for them.
+* Benefit: Total decoupling. One component doesn't even need to know the other exists.
+
+
+
+---
+
+3. Cross-Tab & Cross-Context Communication
+
+Sometimes your system needs to talk across different browser windows or background threads.
+
+* Broadcast Channel API: Allows different tabs or windows of the same origin to talk to each other (e.g., logging out of one tab logs you out of all tabs).
+
+* PostMessage: The secure way for an `<iframe>` to talk to its parent page.
+
+* Web Workers: Moving heavy logic (like data processing) to a separate thread so it doesn't "freeze" the UI. Communication happens via message passing.
+
+---
+
+4. Communication Optimization Techniques
+
+To prevent the "Head-of-Line Blocking" or network congestion issues we discussed with HTTP/1.1, you apply these patterns:
+
+* Debouncing: Waiting for a pause in communication (e.g., wait 300ms after the user stops typing before sending a Search API request).
+
+* Throttling: Limiting communication to once every X seconds (e.g., updating a map's coordinates only twice per second while the user is dragging).
+
+* Request Batching: Combining 10 small API calls into one large one to reduce the overhead of headers and handshakes.
+
+* Optimistic UI: Communicating to the user *before* the server responds. If a user "Likes" a post, you show the heart as red immediately, then send the network request in the background.
+
+---
