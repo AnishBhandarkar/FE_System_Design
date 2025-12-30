@@ -31,6 +31,9 @@ GET /app.js
 
 All can reuse the same TCP connection (as long as the server supports keep-alive).
 
+- In HTTP/1.1, requests are handled sequentially over a single TCP connection. Even though it introduced "persistent connections" (keeping the connection open for multiple requests), it still followed a strict "stop-and-wait" model.
+- The Workflow: The browser sends Request A and must wait for Response A to finish completely before it can send Request B.
+
 ---
 
 HTTP/2
@@ -42,6 +45,11 @@ HTTP/2
 ✅ So: Only one TCP handshake per origin (like `example.com`), and all assets are multiplexed over it.
 
 ---
+
+A Small Nuance: TCP Head-of-Line Blocking
+While HTTP/2 solved the Application-level blocking (one request blocking another) [Which was in Http1.1], it is still built on top of TCP. If a single packet is lost in the network, TCP stops everything until that packet is retransmitted. This is known as TCP Head-of-Line blocking.
+
+This is actually why HTTP/3 was created—it moves from TCP to a protocol called QUIC (built on UDP) to ensure that one lost packet doesn't stop all other parallel streams!
 
 HTTP/3 (QUIC)
 
