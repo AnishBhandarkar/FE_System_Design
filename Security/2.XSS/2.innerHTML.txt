@@ -1,0 +1,12 @@
+- Anything u pass to innerHTML will be parsed as html.
+- Modern browser ensures that if the html passed to it has script tag, it will ignore it and it wont execute that script.
+- But it will still execute the script in callbacks. Like onscroll, onclick, onerror etc.
+- SO be careful there, and as long as we dont need user input as html, use innerText or textContent.
+- If we use that even though it contains malicious code, it will be rendered as plain text.
+- But if user-input has to be rendered as html then sanitize it using DOMPurify.
+
+
+- Similarly for other attributes where we pass user input to the attribute.
+
+Ex: <button onclick=`${userInp}`>Do something </button>
+- These kind of things are unsafe and needs sanitization of userInp. Because whatever we pass to such attributes, they are executed as Javascript, not plain text.

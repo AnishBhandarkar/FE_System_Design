@@ -1,0 +1,113 @@
+Cross-site Scripting (XSS):
+
+3 main Articles.
+1. https://developer.mozilla.org/en-US/docs/Web/Security/Attacks/XSS
+2. https://owasp.org/www-community/Types_of_Cross-Site_Scripting
+3. https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html
+
+- https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CSP
+- https://github.com/cure53/DOMPurify
+- https://github.com/namastedev/namaste-frontend-system-design/tree/master/Security/XSS
+
+---
+
+1. What is XSS?
+
+XSS is a vulnerability where an attacker injects malicious scripts (usually JavaScript) into a web page viewed by other users. Because the browser thinks the script came from a "trusted" source, it executes the script in the context of that user's session.
+
+---
+
+2. The Three Types of XSS
+
+You must be able to distinguish these three in an interview:
+
+A. Stored XSS (Persistent)
+B. Reflected XSS (Non-Persistent)
+C. DOM-based XSS
+
+But these can be again combined. So later it re-categorized as 
+- Server XSS
+- Client XSS
+
+---
+
+3. The Impact (Why it matters)
+
+If an attacker successfully executes JS on your frontend, they can:
+
+1. User session hijacking:
+Hijacking session details like stealing cookie data. Access `document.cookie` to hijack accounts.
+
+2. Unauthorized activities:
+Sometimes you might have seen that you don’t send any message to your friend in facebook but message is sent asking for money. Or add a new post Or Delete account
+
+3. Capturing keystrokes:
+Getting what you are typing in keyboard.
+
+4. Stealing critical information:
+Getting entire DOM or entire code which consists critical information. Getting html content of the page. Bank info, transaction info (document.body.innerHTML)
+
+5. Phishing:
+Inject a fake login form over the real site to steal passwords.
+
+---
+
+4. Defense Strategies (The "System Design" Answer)
+
+In an interview, don't just give one answer. Describe a multi-layered defense.
+
+> Layer 1: Output Encoding (The Primary Defense)
+- Before rendering user-provided data in the HTML, convert "special" characters into their HTML-entity equivalents.
+* `<` becomes `&lt;`
+* `>` becomes `&gt;`
+* Why? The browser will display the characters as text instead of interpreting them as code.
+
+
+> Layer 2: Input Sanitization
+- If your app must allow some HTML (like a blog post editor), use a library like 'DOMPurify'. This strips out dangerous tags (`<script>`, `<iframe>`) and attributes (`onerror`, `onclick`) while keeping safe ones (`<b>`, `<i>`).
+
+
+> Layer 3: Content Security Policy (CSP)
+- This is a modern, powerful browser-level security layer. You define a header that tells the browser which sources of content are trusted.
+* Example Policy: `Content-Security-Policy: script-src 'self' https://trusted.com;`
+* Impact: Even if an attacker injects a script, the browser will refuse to run it because it didn't come from a trusted domain.
+
+
+> Layer 4: Using "HttpOnly" Cookies
+For sensitive data like Session IDs or JWTs, set the `HttpOnly` flag.
+
+* Result: JavaScript (`document.cookie`) cannot read the cookie. Even if an XSS attack succeeds, the attacker cannot steal the session token.
+
+---
+
+5. Interview "Pro Tips"
+
+* Framework Protections: Mention that modern frameworks like React and Vue provide automatic output encoding by default. However, mention the "escape hatches" like `dangerouslySetInnerHTML`, which are common XSS entry points.
+
+* Trusted Types API: If it's a senior-level interview, mention the Trusted Types API. It allows developers to lock down dangerous DOM APIs (like `.innerHTML`) so they only accept "TrustedType" objects instead of raw strings.
+
+* Validation vs. Sanitization: Clarify that Validation happens on input (e.g., "Is this a valid email?"), while Sanitization happens before rendering/storage. You need both.
+
+---
+
+Summary Table for Interview Prep
+
+| Encoding     | Converts code into plain text for the browser. |
+| Sanitization | Strips malicious tags from HTML strings. |
+| CSP          | Whitelists trusted script sources via HTTP headers. |
+| HttpOnly     | Prevents JS from reading sensitive cookies. |
+| Samesite     | Mainly for CSRF, but adds a layer of cookie isolation. |
+
+
+
+
+---
+
+- In short Output encoding, sanitaization can be done in FE but CSP has to be done in BE.
+
+- But FE can add CSP via <meta> tag
+<meta http-equiv="Content-Security-Policy" content="script-src 'self'">
+
+- But: Headers override meta. Meta loads later. Less secure
+
+- Use only if BE is out of your control

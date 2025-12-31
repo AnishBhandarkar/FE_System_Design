@@ -12,3 +12,7 @@
 - Websocket
 - Server sent events
 - WebHooks
+
+
+## Security
+- Cross site scripting

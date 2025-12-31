@@ -1,0 +1,15 @@
+XSS
+Iframe protection
+CSRF
+Authentication/Authorization
+Input validation/Sanitization
+HTTPS
+Security headers
+Dependency Injection
+Clieent storage security
+Compliance and regulations
+SSRF
+SSJI
+Feature flag
+Subresource integrity
+CORS

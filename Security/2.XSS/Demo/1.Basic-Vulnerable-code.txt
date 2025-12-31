@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Document</title>
+</head>
+
+<body>
+    <!-- This div displays a welcome message -->
+    <!-- The username will be inserted dynamically -->
+    <div>
+        Welcome, <span id="username"></span>!
+    </div>
+
+    <script>
+        // Extracts query parameters from the URL
+        // Example URL: http://example.com/?name=John
+        const params = new URLSearchParams(window.location.search);
+
+        // Gets the value of the "name" parameter from the URL
+        const name = params.get('name');
+
+        // Inserts the value of "name" directly into the HTML
+        // This is dangerous because it allows HTML and JavaScript execution
+        document.getElementById('username').innerHTML = name;
+    </script>
+</body>
+</html>
+
+- Assume the above code is executing in http://example.com/?name=John after u logged in.
+
+- Say suppose u visit a malicious website and click on a link 'Get cute kittens' which embeds,
+'http://example.com/?name=<img src=x onerror="alert('Hijacked')">'.
+
+- Now browser will navigate to that page. Since you are already logged in to that page, it wont be a problem.
+
+- Now since the value of "user" param we are injecting as HTML, it will execute the script. Because since the src in image will give error, the callback in onerror will get executed, which may contain malicious code.
+
+
+- XSS doesn’t break browser security — it abuses trust inside it.
+
+

