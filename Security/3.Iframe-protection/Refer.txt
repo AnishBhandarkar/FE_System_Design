@@ -1,0 +1,5 @@
+1. https://workos.com/blog/security-risks-of-iframes
+
+2. https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/iframe
+
+3. https://github.com/namastedev/namaste-frontend-system-design/tree/master/Security/IframeProtection

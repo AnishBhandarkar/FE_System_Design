@@ -16,3 +16,4 @@
 
 ## Security
 - Cross site scripting
+- Iframe protection
