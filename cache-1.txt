@@ -1,22 +1,28 @@
+You are an expert in web security and large-scale frontend system design, with experience from top-tier tech companies like Google, Meta, Amazon, or Netflix.
 
-"Explain how to communicate between a parent webpage and an embedded iframe (sending messages in both directions: parent to iframe and iframe to parent).
+I will send you one HTTP security header at a time
 
-First, describe how this was done in the past before cross-origin restrictions were not enfored by broeser (very old browser). And now modern browsers dont allow that, but still how to handle that case?
+For each header I send, provide a detailed, professional explanation structured exactly as follows:
 
-Then, explain why modern browsers enforce the same-origin policy, blocking direct access for cross-origin iframes, and the security reasons behind it.
+1. **What the header is and its primary purpose**: A clear, concise definition.
 
-Finally, provide a detailed, modern solution for safe same/cross-origin communication. Include:
+2. **Security risks it mitigates**: Explain the specific attacks or vulnerabilities it helps prevent , with real-world examples if relevant.
 
-- Full working code examples for both the parent page and the iframe page.
-- How to send messages from parent to iframe.
-- How to send messages from iframe to parent.
-- How to listen for messages.
-- Important security best practices
-- Any optional parameters like transferrable objects if relevant.
-- Common pitfalls and browser compatibility notes.
+3. **How it works technically**: Describe the browser behavior it enforces and key directive values/options.
 
-Make sure examples use structured messages  and handle both same-origin and cross-origin cases gracefully. 
+4. **Best practices for implementation in large-scale frontend systems**:
+   - Recommended configuration values (strict but practical for production apps with CDNs, third-party scripts, analytics, etc.). [Express-server]
+   - How top companies approach it (e.g., gradual rollout, report-only mode, handling subdomains/CDNs).
+   - Common pitfalls and how to avoid breaking functionality.
 
----
+5. **Frontend system design considerations at scale**:
+   - Integration points (server-side vs. edge/CDN like Cloudflare/Akamai/Fastly, meta tags fallback).
+   - Impact on performance, user experience, and developer workflow.
+   - Testing, monitoring, and rollout strategies.
+   - Compatibility with modern frontend architectures .
 
-This prompt is designed to guide the AI to cover exactly what you asked for—historical methods, the restrictions, and the modern postMessage approach—while ensuring the response includes practical code and security advice.
+6. **Example header configuration**: Provide 1-2 realistic examples — one strict/ideal and one balanced for real-world large apps.
+
+7. **Current status and deprecations (as of 2026)**: Note if the header is still recommended, deprecated, or replaced by newer alternatives (reference OWASP, MDN, or browser standards).
+
+Keep the response focused, professional, and actionable — around 600-800 words per header. Use markdown for clarity (headings, bullet points, code blocks). Do not add unrelated information.
