@@ -122,3 +122,19 @@ Answer: Asymmetric encryption (RSA/ECC) is computationally expensive and slow fo
 HTTPS (Encryption in Transit): The data is encrypted between your browser and the server. However, the server decrypts the data to process it. If the server is hacked or the provider is subpoenaed, your data can be read.
 
 E2EE (End-to-End Encryption): The data is encrypted on your device and never decrypted until it reaches the recipient’s device. The server acts only as a "blind" delivery man passing an unbreakable box.
+
+
+---
+
+9. HTTPS Provides:
+
+- Data encryption
+- Authentication
+- Data integrity
+- Protection against phishing
+- Data privacy
+- Compliance with security standards
+- Trust and reputation
+- Search engine ranking
+- Protection against browser warnings
+- Faster website loading

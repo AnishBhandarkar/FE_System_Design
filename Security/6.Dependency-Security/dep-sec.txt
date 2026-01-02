@@ -1,0 +1,135 @@
+1. What is Dependency Security?
+
+Dependency security refers to the practice of ensuring that the third-party libraries (managed via npm, Yarn, or pnpm) integrated into your application do not introduce vulnerabilities, malicious code, or licensing risks.
+
+Why it's a massive risk in FE:
+
+* Implicit Trust: We often npm install without auditing the source code.
+* Scale: A single top-level dependency (like webpack) can pull in hundreds of transitive dependencies (dependencies of dependencies).
+* Real-World Breaches:
+* event-stream (2018): A malicious actor gained maintainer rights to a popular utility and injected code to steal cryptocurrency from BitPay users.
+* ua-parser-js (2021): The library was hijacked to include password-stealing malware and miners.
+
+
+---
+
+2. Types of Vulnerabilities:
+
+* Known Vulnerabilities (CVEs): Publicly documented security flaws in specific versions of a library.
+
+* Transitive Dependencies: You might trust Library A, but Library A uses Library B, which has a backdoor.
+
+* Malicious Packages: Specifically designed to steal environment variables (like NPM_TOKEN or AWS_KEYS) during build time.
+
+* Typosquatting: Registering react-domm instead of react-dom hoping a developer makes a typo.
+
+* Dependency Confusion: Tricking a build system into pulling a malicious public package instead of an internal private package by using the same name but a higher version number.
+
+---
+
+3. How Vulnerabilities Enter FE Apps:
+
+Vulnerabilities typically sneak in through Developer Experience (DX) shortcuts:
+
+1. Over-reliance: Using a 50kb library for a simple 5-line utility function.
+
+2. Unmaintained Libraries: Abandoned packages don't receive security patches for new browser exploits.
+
+3. Loose Versioning: Using ^1.2.0 (Caret) or ~1.2.0 (Tilde) allows the package manager to pull newer, potentially compromised versions automatically.
+
+4. Copy-Paste: Adding a snippet from a blog post that includes an outdated, vulnerable CDN link.
+
+---
+
+4. Package Management & Locking:
+
+In an interview, you must distinguish between the manifest and the lockfile.
+
+| Feature     | package.json                       | Lockfile (package-lock.json, yarn.lock) |
+| ------------| ---------------------------------- | ----------------------------------- |
+| Purpose     | Defines intent and version ranges. | Records the exact version installed. |
+| Integrity   | No checksums.                      | Includes hashes (SHA) to verify file integrity. |
+| Environment | Shared across team.                | Ensures Deterministic Builds (same code everywhere). |
+
+Interview Tip: Always mention that lockfiles should be committed to Git. They prevent "it works on my machine" bugs and ensure the production build uses the exact same code tested in staging.
+
+---
+
+5. Auditing & Detection
+
+Tooling Strategy:
+
+* Manual: npm audit or yarn audit provide a snapshot of known CVEs.
+
+* Automated (SCA - Software Composition Analysis): * Dependabot: Automatically opens PRs when a dependency has a patch.
+
+* Snyk: Offers deeper analysis, including license compliance and "reachable" vulnerability analysis.
+
+* CI/CD Integration: Failing a build if "Critical" or "High" vulnerabilities are detected.
+
+---
+
+6. Versioning (SemVer) & Upgrade Strategies
+
+Semantic Versioning (Major.Minor.Patch):
+
+* Patch: Bug fixes (Safe).
+* Minor: New features, backwards compatible (Usually safe).
+* Major: Breaking changes (High risk).
+
+Strategy: Use Pinning (fixed versions) for mission-critical apps, combined with an automated tool (Dependabot) to handle the upgrade cycle in a controlled manner.
+
+---
+
+7. Runtime vs. Build-Time Risks
+
+Front-end security isn't just about what runs in the browser; it's about the Build Pipeline.
+
+* Build-Time: A malicious package can use postinstall scripts to execute arbitrary code on your developer machine or CI server. It can steal .env files or inject scripts into your final /dist bundle.
+* Runtime: Vulnerabilities like XSS (Cross-Site Scripting) if a library (e.g., a Markdown parser) doesn't sanitize inputs correctly.
+
+---
+
+8. Front-End Specific Risks
+
+* The Bundler Trap: Webpack/Vite bundles everything. If a dev-dependency (like a testing tool) accidentally gets imported into source code, it ends up in the client's browser.
+
+* Tree Shaking: While tree shaking removes unused code, it is not a security tool. If a vulnerable function is imported but not called, it *might* be removed, but you cannot rely on this to stay secure.
+
+---
+
+9. Security Best Practices (The "Golden Rules")
+
+1. Minimum Viable Dependencies: Do you really need lodash for one function?
+
+2. Read-Only CI: Use npm ci instead of npm install in your pipeline. It ignores package.json, strictly follows the lockfile, and deletes node_modules if they don't match.
+
+3. Disable Scripts: Use --ignore-scripts for untrusted packages to prevent postinstall malware execution.
+
+4. Private Registry: For large companies, use a proxy (like Artifactory) to vet packages before they reach developers.
+
+---
+
+10. Dependency Security in System Design Interviews
+
+When asked to "Design a Front-End Deployment Pipeline," include these security layers:
+
+1. Code Check-in: Triggers CI.
+2. Audit Step: Run npm audit or Snyk. Break build on "High/Critical".
+3. Lockfile Verification: Ensure package-lock.json matches package.json.
+4. Isolated Build: Run npm ci --ignore-scripts in a container.
+5. Artifact Scanning: Scan the resulting bundle for leaked secrets.
+
+Trade-off to mention: Security vs. Velocity. Strict auditing can slow down builds. The solution is to run audits in parallel or asynchronously for non-critical updates.
+
+---
+
+11. Common Misconceptions
+
+* "npm audit fixes everything": It only fixes known vulnerabilities. Zero-day exploits or malicious packages not yet flagged will pass.
+
+* "FE is safe because it's client-side": False. A compromised FE dependency can steal user sessions (cookies), credit card info (keylogging), or redirect users to phishing sites.
+
+* "Tree Shaking is a security feature": It's an optimization feature. Relying on it to remove "bad code" is a dangerous gamble.
+
+---

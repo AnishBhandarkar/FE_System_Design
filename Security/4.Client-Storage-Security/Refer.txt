@@ -1,0 +1,6 @@
+https://developer.mozilla.org/en-US/docs/Web/API/Storage_API/Storage_quotas_and_eviction_criteria
+
+https://web.dev/articles/storage-for-the-web
+
+https://web.dev/articles/persistent-storage
+
