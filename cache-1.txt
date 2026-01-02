@@ -1,28 +1,53 @@
-You are an expert in web security and large-scale frontend system design, with experience from top-tier tech companies like Google, Meta, Amazon, or Netflix.
+Here’s a **clean, enhanced prompt** you can copy-paste into any AI tool to get **complete, system-design–oriented coverage of HTTPS**, tailored for **Front-End (FE) system design interviews**.
 
-I will send you one HTTP security header at a time
+---
 
-For each header I send, provide a detailed, professional explanation structured exactly as follows:
+### Enhanced Prompt (Ready to Use)
 
-1. **What the header is and its primary purpose**: A clear, concise definition.
+> I am preparing for Front-End system design interviews.
+> I want to deeply understand **HTTPS** from a **system design and real-world implementation perspective**.
+>
+> Please explain HTTPS in a **structured, interview-oriented way**, covering **all major and minor concepts** that a Front-End or Full-Stack engineer is expected to know.
+>
+> Specifically, cover:
+>
+> 1. **What HTTPS is and why it exists**
+>
+>    * Problems with HTTP
+>    * Security goals (confidentiality, integrity, authentication)
+> 2. **How HTTPS works internally**
+>
+>    * TLS/SSL handshake step-by-step
+>    * Symmetric vs asymmetric encryption
+>    * Certificates, Certificate Authorities (CA), and trust chain
+>    * Key exchange and session keys
+> 3. **HTTPS request–response lifecycle**
+>
+>    * From browser URL entry to receiving the response
+>    * DNS, TCP, TLS, and HTTP layers
+> 4. **Performance considerations**
+>
+>    * TLS handshake cost
+>    * Session resumption
+>    * HTTP/2 and HTTP/3 impact
+>    * CDN + HTTPS optimization
 
-2. **Security risks it mitigates**: Explain the specific attacks or vulnerabilities it helps prevent , with real-world examples if relevant.
-
-3. **How it works technically**: Describe the browser behavior it enforces and key directive values/options.
-
-4. **Best practices for implementation in large-scale frontend systems**:
-   - Recommended configuration values (strict but practical for production apps with CDNs, third-party scripts, analytics, etc.). [Express-server]
-   - How top companies approach it (e.g., gradual rollout, report-only mode, handling subdomains/CDNs).
-   - Common pitfalls and how to avoid breaking functionality.
-
-5. **Frontend system design considerations at scale**:
-   - Integration points (server-side vs. edge/CDN like Cloudflare/Akamai/Fastly, meta tags fallback).
-   - Impact on performance, user experience, and developer workflow.
-   - Testing, monitoring, and rollout strategies.
-   - Compatibility with modern frontend architectures .
-
-6. **Example header configuration**: Provide 1-2 realistic examples — one strict/ideal and one balanced for real-world large apps.
-
-7. **Current status and deprecations (as of 2026)**: Note if the header is still recommended, deprecated, or replaced by newer alternatives (reference OWASP, MDN, or browser standards).
-
-Keep the response focused, professional, and actionable — around 600-800 words per header. Use markdown for clarity (headings, bullet points, code blocks). Do not add unrelated information.
+> 5. **Certificates in practice**
+>
+>    * Types of certificates (DV, OV, EV)
+>    * Wildcard certificates
+>    * Certificate renewal & expiration
+>    * Self-signed vs trusted certificates
+> 6. **HTTPS in system design interviews**
+>
+>    * When and why HTTPS is mandatory
+>    * Common interview questions
+>    * Design trade-offs and real-world scenarios
+>    * How to explain HTTPS clearly in an interview
+> 7. **Common misconceptions & pitfalls**
+>
+>    * HTTPS vs encryption of data at rest
+>    * HTTPS does NOT prevent all attacks
+>
+> Use **clear explanations**, **simple diagrams (ASCII if helpful)**, and **real-world examples**.
+> Assume I have **basic web knowledge but want deep clarity** for interviews.

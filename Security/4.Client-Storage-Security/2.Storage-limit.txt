@@ -1,0 +1,123 @@
+1. The Storage Limit Matrix (2026 Standards)
+
+Limits are typically enforced per Origin (Protocol + Domain + Port).
+
+Below list of storage type ordered in following order.
+Typical Limit
+Eviction Policy (Rules deciding which stored data is deleted first when space runs out.)
+Best For
+
+1. Cookies
+- ~4 KB per cookie; ~50-170 cookies per origin
+- Least Recently Used (LRU)
+- Auth tokens, session IDs
+
+
+2. LocalStorage
+- 5 MB – 10 MB
+- Never (unless manual/Safari ITP)
+- User preferences, theme
+
+3. SessionStorage
+- 5 MB – 10 MB
+- Tab/Window closure
+- Temporary UI state
+
+4. IndexedDB
+- 60% – 80% of free disk space
+- LRU (if "Best Effort")
+- Large datasets, offline apps
+
+5. Cache API (Browser cache)
+- Shared with IndexedDB
+- LRU (if "Best Effort")
+- PWA assets, API responses
+
+
+---
+
+2. Quota Management & The StorageManager API
+
+- To build a resilient system, you must move away from "blind writes" and implement a proactive storage strategy using the `StorageManager` API.
+
+Estimating Available Space
+
+Before performing heavy writes (e.g., syncing a large database), check the remaining quota:
+
+
+if (navigator.storage && navigator.storage.estimate) {
+  const { usage, quota } = await navigator.storage.estimate();
+  const percentUsed = (usage / quota) * 100;
+  console.log(`You have used ${percentUsed.toFixed(2)}% of your available storage.`);
+  
+  if (quota - usage < 50000000) { // Less than 50MB left
+    warnUser("Storage is nearly full. Some offline features may be disabled.");
+  }
+}
+
+
+> Best Effort vs. Persistent Storage:
+By default, browser storage is "Best Effort." If the device runs low on disk space, the browser will silently evict your IndexedDB data to save the OS. For critical apps (like a local-first Note app), you must request Persistence:
+
+
+const isPersisted = await navigator.storage.persist();
+if (isPersisted) {
+  console.log("Storage is now 'Persistent' and won't be cleared by the browser.");
+}
+
+
+
+---
+
+3. Security & Reliability Risks
+
+The "Storage DoS" Attack:
+
+An attacker can script a loop to fill `LocalStorage` or `IndexedDB` with junk data.
+
+* The Risk: While they can't crash the user's computer, they can break *your* app's functionality (e.g., preventing the app from saving legitimate session data).
+
+* The Mitigation: Always wrap writes in `try/catch` and handle `QuotaExceededError`. Implement an LRU Cache within your own logic to prune old data before the browser forces you to.
+
+Safari’s 7-Day Eviction (ITP)
+
+Apple’s Intelligent Tracking Prevention (ITP) is a significant "gotcha." In Safari, if a user does not interact with your site (click/tap) for 7 days, all script-writable storage (IndexedDB, LocalStorage, Cache API) is deleted.
+
+* System Design Tip: Do not rely on client-side storage for long-term data on iOS without a server-side backup strategy.
+
+---
+
+4. Interview Scenarios: Handling `QuotaExceededError`
+
+When asked how to handle a full storage scenario in an interview, focus on these three tiers:
+
+1. Detection: Catch the error immediately during the write operation.
+2. Recovery: Automatically clear non-essential data (e.g., image caches, old logs).
+3. Communication: If recovery fails, notify the user. "We can't save your changes because your device is full."
+
+function safeSetItem(key, value) {
+  try {
+    localStorage.setItem(key, value);
+    console.log(`Successfully saved "${key}" to localStorage`);
+    return true;
+  } catch (error) {
+    if (
+      error.name === 'QuotaExceededError' ||
+      error.code === 22 || // Chrome/Safari
+      error.code === 1014 || // Firefox
+      error.name === 'NS_ERROR_DOM_QUOTA_REACHED'
+    ) {
+      console.error('localStorage is full - QuotaExceededError');
+    } else {
+      console.error('localStorage write failed:', error);
+    }
+    return false;
+  }
+}
+
+---
+
+Common Pitfalls & Edge Cases
+
+* Private/Incognito Mode: Browsers often cap storage much lower (e.g., 100MB total) and wipe it the moment the tab closes.
+* Opaque Responses: If you cache cross-origin resources (CDN images) without CORS, the browser "pads" the size of the file in your quota (e.g., a 10KB image might count as 7MB) to prevent side-channel attacks.

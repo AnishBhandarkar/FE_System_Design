@@ -1,0 +1,112 @@
+/**
+ * Estimates localStorage usage, quota, and remaining space.
+ * Returns an object with usage (bytes), quota (bytes), remaining (bytes),
+ * and a boolean hasSpace indicating if there's room for at least 1KB more.
+ * 
+ * Handles modern browsers with navigator.storage.estimate() (recommended).
+ * Falls back to manual calculation (approximate) for older/unsupported browsers.
+ * 
+ * Corner cases handled:
+ * - API not supported or unavailable (e.g., insecure context, old browsers)
+ * - Private/incognito modes (reduced or session-only quotas)
+ * - QuotaExceededError variations across browsers
+ * - UTF-16 string encoding (localStorage stores strings in UTF-16: ~2 bytes per char)
+ * - Overhead from keys (included in manual calc)
+ * - No direct quota access in some browsers (fallback assumes common ~5MB limit)
+ */
+async function estimateLocalStorage() {
+  // Prefer the standard StorageManager API when available
+  if (navigator.storage && typeof navigator.storage.estimate === 'function') {
+    try {
+      const estimate = await navigator.storage.estimate();
+      
+      // estimate.usage includes localStorage + sessionStorage + other storage for the origin
+      // estimate.quota is the total allowed for persistent storage (approximate)
+      const usage = estimate.usage ?? 0;
+      const quota = estimate.quota ?? 0;
+      const remaining = Math.max(0, quota - usage);
+
+      // Conservatively check if at least ~1KB is free (accounts for potential overhead)
+      const hasSpace = remaining > 1024;
+
+      return { usage, quota, remaining, hasSpace };
+    } catch (err) {
+      console.warn('Storage estimate failed:', err);
+      // Fall through to manual estimation on error
+    }
+  }
+
+  // Fallback: Manual estimation (less accurate, no real quota)
+  let usageBytes = 0;
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key !== null) {
+        const value = localStorage.getItem(key) ?? '';
+        // Keys and values are UTF-16 strings: each char ≈ 2 bytes
+        usageBytes += (key.length + value.length) * 2;
+      }
+    }
+  } catch (err) {
+    console.warn('Manual localStorage scan failed:', err);
+  }
+
+  // Common fallback quota: ~5MB for localStorage (varies by browser)
+  // Actual total may be higher (some browsers allow more, or include sessionStorage)
+  const fallbackQuota = 5 * 1024 * 1024;
+  const remaining = Math.max(0, fallbackQuota - usageBytes);
+  const hasSpace = remaining > 1024;
+
+  return {
+    usage: usageBytes,
+    quota: fallbackQuota,
+    remaining,
+    hasSpace,
+    note: 'Fallback manual estimate (quota approximate)'
+  };
+}
+
+/**
+ * Safely checks if data can be stored in localStorage.
+ * Always wrap writes in try/catch as the only reliable way to detect quota exceed.
+ * 
+ * @param {string} key 
+ * @param {string} value 
+ * @returns {boolean} true if stored successfully
+ */
+function safeSetItem(key, value) {
+  try {
+    localStorage.setItem(key, value);
+    return true;
+  } catch (err) {
+    // Robust QuotaExceeded detection across browsers
+    if (
+      err instanceof DOMException &&
+      (
+        err.code === 22 ||                  // Most browsers
+        err.code === 1014 ||                // Firefox
+        err.name === 'QuotaExceededError' ||
+        err.name === 'NS_ERROR_DOM_QUOTA_REACHED'
+      )
+    ) {
+      console.warn('localStorage quota exceeded');
+    } else {
+      console.error('localStorage write failed:', err);
+    }
+    return false;
+  }
+}
+
+// Example usage:
+(async () => {
+  const info = await estimateLocalStorage();
+  console.log('localStorage info:', info);
+
+  // Before storing large data
+  if (info.hasSpace) {
+    // Still wrap in safeSetItem for safety
+    safeSetItem('myKey', 'my large value...');
+  } else {
+    console.warn('Low storage space - consider cleanup');
+  }
+})();

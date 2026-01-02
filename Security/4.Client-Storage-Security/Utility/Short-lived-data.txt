@@ -1,0 +1,113 @@
+localStorage is persistent by design (it never expires), so to make data short-lived you have to manually add an expiration mechanism.
+
+---
+
+Core idea:
+
+When saving data:
+
+* Store the value
+* Store an expiration timestamp
+
+When reading data:
+
+* Check if the current time is past the expiration
+* If expired → delete it and return null
+
+---
+
+Simple Example: Short-Lived Data in localStorage
+
+1️⃣ Save data with an expiry time:
+
+function setWithExpiry(key, value, ttl) {
+  const now = Date.now();
+
+  const item = {
+    value: value,
+    expiry: now + ttl, // ttl = time to live in ms
+  };
+
+  localStorage.setItem(key, JSON.stringify(item));
+}
+
+
+Usage:
+// Store data for 10 seconds
+setWithExpiry("userToken", "abc123", 10 * 1000);
+
+
+---
+
+2️⃣ Read data and check expiration:
+
+function getWithExpiry(key) {
+  const itemStr = localStorage.getItem(key);
+
+  // If nothing found
+  if (!itemStr) return null;
+
+  const item = JSON.parse(itemStr);
+  const now = Date.now();
+
+  // If expired
+  if (now > item.expiry) {
+    localStorage.removeItem(key);
+    return null;
+  }
+
+  return item.value;
+}
+
+
+Usage:
+const token = getWithExpiry("userToken");
+
+if (token) {
+  console.log("Valid token:", token);
+} else {
+  console.log("Token expired or not found");
+}
+
+
+---
+
+Why this works:
+
+* localStorage itself has no expiry
+* This approach:
+  * Prevents stale data
+  * Automatically cleans expired data
+  * Keeps logic simple and predictable
+
+---
+
+Important Security Notes ⚠️
+
+Since you're mentioning security, keep this in mind:
+
+❌ Do NOT store sensitive data like:
+
+* Passwords
+* Private keys
+* Long-lived auth tokens
+
+✔️ localStorage is accessible by any JS on the page
+✔️ Short-lived tokens reduce risk but do not make it fully secure
+
+If you need real security:
+
+* Use HttpOnly cookies (server-side)
+* Or rotate short-lived tokens frequently
+
+---
+
+When to use this pattern
+
+✅ UI state
+✅ Temporary flags
+✅ Short session data
+✅ Non-critical tokens
+
+---
+
