@@ -22,3 +22,4 @@
 - HTTPS
 - Dependency security
 - Compliance and regulations
+- Input validation and sanitization

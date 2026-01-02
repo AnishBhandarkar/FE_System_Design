@@ -1,0 +1,131 @@
+Input validation and sanitization.
+
+1. Definitions and Core Differences
+
+While often used interchangeably, validation and sanitization serve two distinct purposes in a system's lifecycle.
+
+* Input Validation: The process of ensuring the data provided by the user matches the expected format, type, and logic before it is processed. It asks: "Is this data even allowed?"
+
+* Input Sanitization: The process of cleaning or "scrubbing" the input to ensure it is safe for its intended destination (like a database or a browser). It asks: "Is this data safe to use?"
+
+How they complement each other:
+Validation acts as the gatekeeper (rejection), while sanitization acts as the filter (modification). You validate to ensure data integrity and sanitize to prevent security exploits.
+
+---
+
+2. Why They Matter: The Stakes
+
+In a system design interview, you should mention these three pillars:
+
+* Security Risks:
+* XSS (Cross-Site Scripting): Injecting malicious scripts into web pages viewed by other users.
+* SQL Injection: Manipulating backend queries via input fields.
+* Command Injection: Executing arbitrary shell commands on the server.
+
+
+* Data Integrity: Ensuring that a "Price" field doesn't accidentally store the string "free," which could crash downstream financial services.
+
+* Compliance (GDPR/HIPAA/PCI): Regulatory bodies require strict control over how data is handled and stored. Failure to validate/sanitize can lead to data leaks that result in massive fines.
+
+---
+
+3. Types of Input Validation
+
+> Client-Side vs. Server-Side
+
+* Client-Side: Primary goal is User Experience (UX). It provides instant feedback, reducing server round-trips. Never trust client-side validation for security.
+* Server-Side: Primary goal is Security and Data Integrity. This is the source of truth. If the client-side is bypassed (via Postman or Curl), the server must catch it.
+
+
+> Syntactic vs. Semantic
+
+* Syntactic: Checking the "shape" of the data. Is it an email? Is the string longer than 255 characters? Is it a number?
+* Semantic: Checking the "meaning" of the data against business logic. e.g., "The 'Return Date' cannot be earlier than the 'Departure Date'."
+
+
+> Whitelisting vs. Blacklisting
+
+* Whitelisting (Recommended): Defining exactly what is allowed (e.g., "Only A-Z characters allowed").
+* Blacklisting (Discouraged): Defining what is forbidden (e.g., "Don't allow <script>"). Attackers always find new ways to bypass lists of "bad" things.
+
+---
+
+4. Sanitization Techniques
+
+Sanitization is highly context-dependent. What is safe for a database might be lethal for a browser.
+
+* Escaping: Converting special characters into a safe format.
+* Example: < becomes &lt;.
+
+* Library Usage: Use battle-tested libraries like DOMPurify (for HTML) or validator.js (for strings).
+* Context-Awareness:
+* HTML Context: Use textContent instead of innerHTML.
+* Attribute Context: Sanitize href values to prevent javascript:alert(1).
+* JSON Context: Ensure proper encoding when embedding data in <script> tags.
+
+
+---
+
+5. Front-End Implementation Strategies
+
+When designing the UI component of your system, focus on these patterns:
+
+* Real-time Validation: Use onChange or onBlur events to give immediate feedback.
+* Preventing DOM-based XSS: Avoid "sinks" like eval(), setTimeout(string), new Function(string), or document.write().
+* Input Masks: Use libraries (like react-imask) to force users into a format (e.g., (999) 999-9999) as they type.
+
+Example: Sanitizing with DOMPurify
+
+import DOMPurify from 'dompurify';
+
+const UserBio = ({ bioFromApi }) => {
+  // Sanitize the HTML before injecting it
+  const cleanHtml = DOMPurify.sanitize(bioFromApi);
+  
+  return <div dangerouslySetInnerHTML={{ __html: cleanHtml }} />;
+};
+
+
+
+---
+
+6. System Design & Security Considerations
+
+In a high-level design interview, draw the flow of data through the layers:
+
+1. FE Layer: Syntactic validation for UX.
+2. API Gateway/BFF: Basic schema validation (e.g., using Joi or Zod).
+3. Service Layer: Semantic/Business logic validation.
+4. Database Layer: Sanitization/Escaping via Prepared Statements (Parameterized Queries).
+
+The "Sanitize on Output" Principle:
+A common debate is whether to sanitize *before* storing in the DB or *before* rendering in the FE.
+
+* Best Practice: Store the "raw" (but validated) data and sanitize/escape at the moment of rendering. This is because the context might change (e.g., you might display that data in a web app, a mobile app, or a PDF).
+
+---
+
+7. Performance and UX Trade-offs
+
+* Strictness vs. Friction: Overly aggressive validation (e.g., "Password must contain a hieroglyphic") frustrates users.
+* Overhead: Heavy sanitization libraries can increase your bundle size. For performance-critical apps, you might offload heavy sanitization to a Web Worker or the backend.
+
+---
+
+8. Common Pitfalls to Mention
+
+* "Client-side is enough": Anyone can open Chrome DevTools and disable your validation logic.
+* "Regex is the solution for everything": Writing a regex for email is notoriously difficult and can lead to ReDoS (Regular Expression Denial of Service) attacks.
+* "Double Encoding": Escaping data twice can lead to UI bugs where the user sees &amp;lt; instead of <.
+
+---
+
+9. Interview Summary: How to Pivot
+
+If asked about input safety in an interview, structure your answer like this:
+
+1. Acknowledge the Layers: "I'll handle this using a Defense in Depth approach, starting with UX-focused validation on the client and ending with strict schema validation and parameterized queries on the server."
+
+2. Context is King: "I would ensure sanitization is context-aware. For instance, I'd use DOMPurify for HTML rendering but rely on the DB driver's escaping mechanisms for SQL."
+
+3. Mention Tooling: Name-drop Zod, DOMPurify, or OWASP guidelines to show you follow industry standards.

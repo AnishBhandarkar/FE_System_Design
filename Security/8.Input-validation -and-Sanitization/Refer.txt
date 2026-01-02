@@ -1,0 +1,9 @@
+https://cheatsheetseries.owasp.org/cheatsheets/Input_Validation_Cheat_Sheet.html
+
+https://medium.com/@puneetdabral2000/day-19-input-validation-and-sanitization-best-practices-b0e7311bac06
+
+https://developer.mozilla.org/en-US/docs/Web/Security/Attacks/XSS
+
+https://github.com/cure53/DOMPurify
+
+https://developer.mozilla.org/en-US/docs/Web/API/Trusted_Types_API
