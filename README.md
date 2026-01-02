@@ -23,3 +23,4 @@
 - Dependency security
 - Compliance and regulations
 - Input validation and sanitization
+- Server side request forgery
