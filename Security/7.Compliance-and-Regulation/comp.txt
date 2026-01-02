@@ -1,0 +1,107 @@
+1. Defining the Landscape
+
+> In an interview, distinguish between these three terms to show depth:
+
+* Regulation: Legally binding rules set by governments (e.g., GDPR, CCPA). Non-compliance leads to heavy fines.
+
+* Compliance: The act of meeting those regulatory requirements or internal policies.
+
+* Standards: Best practices or frameworks (e.g., ISO 27001, WCAG) that help you achieve compliance but aren't always "laws" themselves.
+
+> Why it matters for FE:
+The Front-End is the entry point for data collection. If your UI captures a user's health data or credit card without proper consent or encryption, the system is compromised before the data even reaches the database.
+
+---
+
+2. Major Frameworks (The "Big Five")
+
+| Framework      | Focus                 | Key FE Implication |
+| ---------------| --------------------- | --- |
+| GDPR (EU)      | Data Privacy & Rights | Consent banners, Right to Erasure, Data Portability. |
+| CCPA/CPRA (CA) | Consumer Privacy      | "Do Not Sell My Info" links, transparency of data usage. |
+| HIPAA (US)     | Health Data (PHI)     | Session timeouts, automatic logout, no PHI in URLs/Logs. |
+| PCI-DSS        | Payment Info          | Never touch raw card data; use iFrames (Stripe Elements). |
+| WCAG 2.1       | Accessibility         | Semantic HTML, ARIA labels, keyboard navigability. |
+
+---
+
+3. Data Protection & Privacy in the UI
+
+- In system design, you must categorize data:
+* PII (Personally Identifiable Information): Email, Name, IP Address.
+* Sensitive PII: SSN, Medical records, Biometrics.
+
+- Consent Management:
+* Opt-in (GDPR): Tracking/Cookies must be disabled by default until the user clicks "Accept."
+* Opt-out (CCPA): Tracking can be on, but a clear "Stop" mechanism must exist.
+
+- Data Minimization:
+Design your forms to only ask for what is strictly necessary. Example: Don't ask for a full Date of Birth if you only need to verify the user is over 18.
+
+---
+
+4. Front-End Technical Implications
+
+Secure Data Handling:
+* Storage: Avoid storing PII in `localStorage` or `sessionStorage` as they are vulnerable to XSS. Use HttpOnly, Secure, SameSite=Strict cookies for sensitive tokens.
+
+* Transmission: Ensure all forms use POST (never GET) for sensitive data to keep it out of browser history and server logs.
+
+Privacy-Friendly Analytics:
+If the interviewer asks about tracking, suggest Server-side Tagging. Instead of the FE sending data directly to Google Analytics, it sends it to your own proxy server which strips PII before forwarding it.
+
+---
+
+5. Security Requirements for Compliance
+
+1. Transport Layer: HTTPS is a baseline. For high-compliance, implement HSTS (HTTP Strict Transport Security) to prevent protocol downgrade attacks.
+
+2. Encryption: * In Transit: TLS 1.2+.
+* At Rest: (Usually BE) but FE must ensure data is encrypted before being cached in Service Workers.
+
+3. Audit Trails: Every "Admin" action in the FE (e.g., deleting a user) should trigger an audit log entry on the backend containing the `who`, `what`, and `when`.
+
+---
+
+6. Reporting and Monitoring
+
+Compliance isn't "set and forget."
+
+* Breach Notification: GDPR requires reporting within 72 hours. Your system needs Real-time Monitoring (e.g., Sentry, Datadog) to detect unusual spikes in data access.
+
+* Incident Response: As an FE engineer, you must ensure your error logs do not contain sensitive data that could be leaked during a breach investigation.
+
+---
+
+7. Third-Party Services
+
+Most modern systems use "Component-based compliance":
+
+* Auth: Use Auth0 or Firebase (they handle the heavy lifting of secure storage).
+
+* Payments: Use Stripe or Braintree. They provide hosted iFrames or "Fields" so the raw credit card data never touches your FE code, moving you out of the strictest PCI-DSS scope.
+
+* Vendor Risk: Always check the SOC2 Type II report of any vendor you integrate into your FE.
+
+---
+
+8. Compliance in System Design Interviews
+
+How to discuss trade-offs:
+
+* Performance vs. Compliance: Consent banners and heavy tracking scripts can hurt LCP (Largest Contentful Paint). Suggest Asynchronous Loading of compliance scripts.
+
+* UX vs. Security: Frequent session timeouts (HIPAA) annoy users. Suggest Graceful Re-authentication (showing a modal instead of a full redirect).
+
+Scenario: Design a Health Dashboard:
+> "To comply with HIPAA, I would implement an Inactivity Timer in the FE. I would ensure no PHI is stored in `localStorage`. I'd also use a Content Security Policy (CSP) to prevent unauthorized third-party scripts from reading the sensitive health data rendered on the screen."
+
+---
+
+9. Common Pitfalls & Misconceptions
+
+* "Compliance is a Backend problem": False. The FE handles input validation, consent, and session management.
+
+* "GDPR is EU-only": False. It applies to any company globally that processes the data of EU residents.
+
+* "HTTPS is enough": False. HTTPS protects data in transit, but does nothing for data privacy (how you use the data) or accessibility.

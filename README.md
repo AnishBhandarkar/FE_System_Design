@@ -21,4 +21,4 @@
 - Client storage security
 - HTTPS
 - Dependency security
-
+- Compliance and regulations
