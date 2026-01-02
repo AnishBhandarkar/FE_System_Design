@@ -1,0 +1,22 @@
+
+"Explain how to communicate between a parent webpage and an embedded iframe (sending messages in both directions: parent to iframe and iframe to parent).
+
+First, describe how this was done in the past before cross-origin restrictions were not enfored by broeser (very old browser). And now modern browsers dont allow that, but still how to handle that case?
+
+Then, explain why modern browsers enforce the same-origin policy, blocking direct access for cross-origin iframes, and the security reasons behind it.
+
+Finally, provide a detailed, modern solution for safe same/cross-origin communication. Include:
+
+- Full working code examples for both the parent page and the iframe page.
+- How to send messages from parent to iframe.
+- How to send messages from iframe to parent.
+- How to listen for messages.
+- Important security best practices
+- Any optional parameters like transferrable objects if relevant.
+- Common pitfalls and browser compatibility notes.
+
+Make sure examples use structured messages  and handle both same-origin and cross-origin cases gracefully. 
+
+---
+
+This prompt is designed to guide the AI to cover exactly what you asked for—historical methods, the restrictions, and the modern postMessage approach—while ensuring the response includes practical code and security advice.

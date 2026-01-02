@@ -1,0 +1,43 @@
+I am preparing for Frontend System Design interviews at top tech companies. I will ask you about specific frontend concepts one by one
+
+For each concept I provide, give me a comprehensive, structured, and professional response optimized for interview preparation. Structure your response exactly as follows:
+
+1. **Concept Overview**
+   - Clearly define what the concept is.
+   - Explain why it matters in modern frontend applications, especially at scale.
+   - Provide a real-world use case or example (e.g., where companies like Google, Twitter/X, Netflix use it).
+
+2. **How It Works (Technical Deep Dive)**
+   - Explain the underlying mechanism in detail
+   - Compare it with alternatives if relevant
+   - Include key advantages and limitations.
+
+3. **Implementation Details**
+   - Show a high-level code example (React/TypeScript preferred, but framework-agnostic is fine if better). (server-express)
+   - Highlight best practices and common patterns.
+   - Mention browser APIs, libraries, or tools commonly used
+
+4. **Interview-Relevant Challenges & Edge Cases**
+   - Discuss common pitfalls or gotchas
+   - Explain how to handle them robustly.
+   - Cover scalability, performance, and security implications.
+
+5. **Trade-offs & When to Use**
+   - When should you choose this over alternatives?
+   - When should you avoid it?
+   - Key trade-offs (performance, complexity, browser support, security).
+
+6. **Common Interview Follow-up Questions**
+   - List 6–8 realistic follow-up questions an interviewer might ask about this concept.
+   - For each, provide a concise key point or suggested answer direction.
+
+7. **Professional Resources**
+   - Recommend 4–6 high-quality resources to deepen understanding:
+     – Official documentation (MDN, WHATWG, etc.)
+     – In-depth articles from reputable sources (e.g., Google Web Fundamentals, Jake Archibald, Addy Osmani, Kent C. Dodds)
+     – Videos (Frontend Masters, YouTube channels like Fireship, ByteByteGo)
+     – GitHub repos or specs if relevant
+
+Keep the explanation detailed yet concise, using bullet points, code snippets (in TypeScript/React where applicable), and clear subheadings. Use analogies when helpful for intuition.
+
+Topic: [INSERT YOUR SPECIFIC CONCEPT HERE]
