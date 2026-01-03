@@ -1,0 +1,142 @@
+Big idea (one sentence)
+
+A CSRF token is a secret, random value that the server gives to the browser and later checks to make sure a request really came from your site, not another website.
+
+---
+
+Why cookies alone are not enough
+
+* Browsers automatically send cookies with every request
+* A malicious site can trigger a request from your browser
+* The server sees the cookie and thinks: “This is a logged-in user”
+
+👉 The server cannot tell who initiated the request.
+
+---
+
+How CSRF tokens fix this
+
+CSRF tokens add one extra proof that:
+
+> “This request was intentionally made from our website UI.”
+
+---
+
+Step-by-step flow (normal usage)
+
+1️⃣ User opens your website
+
+* User logs in
+* Server creates:
+
+  * a session cookie
+  * a CSRF token (random string)
+
+---
+
+2️⃣ Server sends CSRF token to frontend
+
+The token is:
+
+* Embedded in a form OR
+* Sent in API response and stored in JS memory
+
+Example (conceptual):
+
+
+csrfToken = "a8F3x9KpQ2"
+
+
+---
+
+3️⃣ Frontend sends request with token
+
+When the user submits a form or clicks a button:
+
+* Browser sends:
+
+  * Cookie (automatically)
+  * CSRF token (manually added by frontend)
+
+Example:
+
+
+Headers:
+  Cookie: session=abc123
+  X-CSRF-Token: a8F3x9KpQ2
+
+
+---
+
+4️⃣ Server verifies token
+
+Server checks:
+
+* Is the token present?
+* Does it match the token stored for this session?
+
+✅ If yes → request is allowed
+❌ If no → request is rejected
+
+---
+
+Why attackers can’t use CSRF tokens
+
+* Another website cannot read your CSRF token
+* Tokens are:
+
+  * Random
+  * Not stored in cookies (usually)
+  * Only available to your site’s JS or HTML
+
+So even if an attacker triggers a request:
+
+* Cookie is sent ❌ (automatic)
+* CSRF token is missing or wrong ✅ → request blocked
+
+---
+
+Simple analogy 🧠
+
+Think of:
+
+* Cookie = ID card in your wallet (browser sends it automatically)
+* CSRF token = secret PIN you must type manually
+
+A thief can steal your wallet (cookie sent automatically),
+but can’t guess your PIN (CSRF token).
+
+---
+
+Where frontend developers use CSRF tokens
+
+* Attach token to:
+
+  * Request headers (X-CSRF-Token)
+  * Form hidden fields
+* Required for:
+
+  * POST / PUT / DELETE requests
+* Not needed for:
+
+  * Read-only GET requests
+
+---
+
+How frameworks help
+
+* React / Angular: you manually send the token
+* Backend frameworks often:
+
+  * Generate token
+  * Validate it automatically
+* Some setups rely on:
+
+  * SameSite cookies instead of tokens
+
+---
+
+One-line interview answer
+
+> “CSRF tokens work by adding a secret, server-generated value to each state-changing request, allowing the server to verify that the request was intentionally made from its own frontend and not triggered by another website.”
+

@@ -29,3 +29,8 @@
 - SRI
 - CORS
 - CSRF
+
+
+## Performance
+
+- 
