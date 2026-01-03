@@ -24,3 +24,4 @@
 - Compliance and regulations
 - Input validation and sanitization
 - Server side request forgery
+- Server side javascript injection
