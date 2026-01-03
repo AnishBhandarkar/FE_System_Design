@@ -25,3 +25,7 @@
 - Input validation and sanitization
 - Server side request forgery
 - Server side javascript injection
+- Permission policy
+- SRI
+- CORS
+- CSRF
