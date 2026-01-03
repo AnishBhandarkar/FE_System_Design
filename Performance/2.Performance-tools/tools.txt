@@ -1,0 +1,18 @@
+> Developer mode:
+- Lighthouse
+- Network tab
+- Performance tab
+
+
+> Simulated data
+- Webpagetest.org
+
+
+> Real user data
+- CRUX
+- pagespeed.web.dev
+- requestmetrics.com
+- clarity.microsoft.com
+- NewRelic
+- Sentry
+- Google analytics
