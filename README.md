@@ -34,3 +34,4 @@
 ## Performance
 - Performance monitoring
 - Performance tools
+- Network optimization

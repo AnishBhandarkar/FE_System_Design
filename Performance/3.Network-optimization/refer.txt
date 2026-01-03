@@ -1,0 +1,11 @@
+- https://web.dev/learn/performance/resource-hints
+
+- https://www.debugbear.com/blog/resource-hints-rel-preload-prefetch-preconnect
+
+- https://www.debugbear.com/blog/103-early-hints
+
+- https://web.dev/articles/codelab-text-compression-brotli
+
+- https://developer.mozilla.org/en-US/docs/Glossary/Brotli_compression
+
+- https://www.debugbear.com/blog/http-compression-gzip-brotli

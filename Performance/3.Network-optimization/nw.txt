@@ -1,0 +1,40 @@
+Network Optimization
+
+1. Critical rendering path.
+- First packet we recieve is 14kb, if we leverage this and put our application code, here or atleast header component then FCP will increse.
+
+
+2. To minimize n/w request. (Also minimize delay hadshake TCP + TLS etc)
+Inline css, js, base64, svg, css sprite
+
+3. async/defer js
+
+4. Avoid redirection (use hsts header)
+
+5. Resource hinting
+- preconnect
+- dns-prefetch
+- preload
+- prefetch
+- prerender
+
+5. Resource hinting priority
+- fetchpriority
+
+6. Early hints
+
+7. Http upgrade
+h2, h3 only works on https
+
+8. Compression
+- Brotli/gzip
+
+9. HTTP Caching
+- cache policy (cache-coontrols, expires, etag, last-modified)
+
+10. Cahing using Service worker
+
+
+
+
+
