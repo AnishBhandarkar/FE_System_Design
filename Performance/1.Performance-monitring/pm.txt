@@ -1,0 +1,402 @@
+Frontend Performance Metrics & Optimization: A System Design Guide
+
+https://chat.deepseek.com/share/oeu4z2lfp8uwc8ux60
+
+Refer:
+https://web.dev/articles/vitals
+https://gtmetrix.com/web-vitals.html
+
+---
+
+## 1. Web Vitals: Core User Experience Metrics
+
+### What are Web Vitals and Why They Matter
+
+**Web Vitals** are Google's standardized set of metrics that measure key aspects of user experience on the web. They represent **real user experience** rather than just technical measurements. Google uses these as ranking signals in search results, making them critical for both UX and business success.
+
+### The Core Web Vitals (Current Set)
+
+| Metric | What It Measures | Why It Matters | Good Threshold | Poor Threshold |
+|--------|------------------|----------------|----------------|----------------|
+| **LCP** | Loading performance | "Is it useful yet?" | ≤2.5s | >4.0s |
+| **INP** | Interactivity | "Is it responsive?" | ≤200ms | >500ms |
+| **CLS** | Visual stability | "Is it annoying?" | ≤0.1 | >0.25 |
+
+Let's explore each in detail:
+
+---
+
+### **FCP (First Contentful Paint)**
+**What it measures:** Time from navigation to when the browser renders the first piece of DOM content (text, image, canvas, SVG).
+
+**When captured:** During initial page load
+- **Good:** ≤1.0s
+- **Needs Improvement:** 1.0-3.0s
+- **Poor:** >3.0s
+
+**Common causes of poor FCP:**
+- Slow server response time (high TTFB)
+- Render-blocking resources (CSS, JavaScript)
+- Heavy client-side rendering before paint
+- Unoptimized images or fonts
+
+**System design impact:**
+```javascript
+// Design choices affecting FCP:
+1. SSR vs CSR tradeoff
+   - SSR: Better FCP but slower TTI
+   - CSR: Worse FCP but potentially faster subsequent interactions
+
+2. Critical CSS extraction
+   - Extract above-the-fold CSS
+   - Inline critical styles
+
+3. Resource prioritization
+   - Preload critical resources
+   - Defer non-critical scripts
+```
+
+---
+
+### **LCP (Largest Contentful Paint)**
+**What it measures:** Time from navigation to when the largest content element (image, text block, video) becomes visible.
+
+**When captured:** During page load (up to 2.5 seconds after first interaction)
+- **Good:** ≤2.5s
+- **Needs Improvement:** 2.5-4.0s
+- **Poor:** >4.0s
+
+**Common causes of poor LCP:**
+- Slow server response time
+- Render-blocking resources
+- Slow resource load times (images, fonts)
+- Client-side rendering delays
+
+**System design impact:**
+```javascript
+// Optimizing LCP in your architecture:
+1. Image optimization strategy
+   - Implement responsive images (srcset, sizes)
+   - Use modern formats (WebP, AVIF)
+   - Consider CDN with image optimization
+
+2. Font optimization
+   - Font-display: swap with fallback
+   - Preload critical fonts
+   - Subset fonts when possible
+
+3. Caching strategy
+   - Implement service workers for critical assets
+   - Use HTTP/2 or HTTP/3 for multiplexing
+```
+
+---
+
+### **FID → INP Evolution**
+**Why FID was replaced:**
+- **FID** measured only the *first* interaction delay
+- Didn't capture ongoing interactivity throughout page life
+- **INP** provides a more complete picture of overall responsiveness
+
+---
+
+### **INP (Interaction to Next Paint)**
+**What it measures:** Overall responsiveness by measuring latency of all user interactions (clicks, taps, key presses) throughout page visit.
+
+**How it works:**
+1. User interacts with page
+2. Browser processes event handlers
+3. Browser renders next frame
+4. INP = Total time from (1) to (3)
+
+**When captured:** Throughout page lifecycle
+- **Good:** ≤200ms
+- **Needs Improvement:** 200-500ms
+- **Poor:** >500ms
+
+**Common causes of poor INP:**
+- Long JavaScript tasks blocking main thread
+- Large JavaScript bundles parsing/executing
+- Expensive DOM operations
+- Third-party script overhead
+
+**System design impact:**
+```javascript
+// Architectural decisions for better INP:
+1. Code splitting strategy
+   - Route-based splitting (React.lazy, dynamic imports)
+   - Component-level splitting for heavy UI sections
+
+2. Task scheduling
+   // Instead of:
+   processHeavyData(data) // Blocks main thread
+   
+   // Use:
+   // Web Workers for CPU-intensive tasks
+   // requestIdleCallback for non-critical work
+   // setTimeout to yield to browser
+
+3. Third-party management
+   - Load third-party scripts asynchronously
+   - Implement lazy loading for non-critical embeds
+   - Use facade pattern for analytics/tracking
+```
+
+---
+
+### **CLS (Cumulative Layout Shift)**
+**What it measures:** Sum of all unexpected layout shifts during page lifecycle.
+
+**How calculated:** `impact fraction × distance fraction`
+- **Impact fraction:** Viewport area impacted by shift
+- **Distance fraction:** Distance moved relative to viewport
+
+**When captured:** Throughout page lifecycle (including after load)
+- **Good:** ≤0.1
+- **Needs Improvement:** 0.1-0.25
+- **Poor:** >0.25
+
+**Common causes of poor CLS:**
+- Images/videos without dimensions
+- Dynamically injected content
+- Web fonts causing FOIT/FOUT
+- Ads/embeds loading late
+
+**System design impact:**
+```javascript
+// Preventing layout shifts in your design:
+1. Resource dimension specification
+   <img width="600" height="400" ...> // Reserve space
+   aspect-ratio: 16/9; // Modern CSS approach
+
+2. Component loading strategy
+   // Reserve space for async components
+   <SkeletonLoader height="300px" />
+
+3. Font loading strategy
+   font-display: optional; // Avoid layout shifts
+   @font-face {
+     font-display: swap; // Tradeoff: FOUT vs CLS
+   }
+```
+
+---
+
+## 2. Browser-centric vs User-centric Metrics
+
+### Key Differences
+
+```mermaid
+graph TD
+    A[Performance Metrics] --> B[Browser-centric]
+    A --> C[User-centric]
+    
+    B --> B1[DOMContentLoaded]
+    B --> B2[Load Event]
+    B --> B3[TTFB]
+    B --> B4[Network Timings]
+    
+    C --> C1[Web Vitals]
+    C --> C2[Time to Interactive]
+    C --> C3[Speed Index]
+    C --> C4[Total Blocking Time]
+```
+
+### Browser-centric Metrics (Technical Measurements)
+
+| Metric | What It Measures | Limitation |
+|--------|------------------|------------|
+| **DOMContentLoaded** | HTML parsed, DOM built | Doesn't measure rendering or user-perceived load |
+| **Load Event** | All resources loaded | User might see content much earlier |
+| **TTFB** | Time to First Byte | Network/server metric, ignores client-side processing |
+| **Network Timings** | DNS, SSL, TCP times | Technical, not user-facing |
+
+### User-centric Metrics (Experience Measurements)
+
+| Metric | What It Measures | Why Better |
+|--------|------------------|------------|
+| **Web Vitals** | Real user interactions | Measures actual experience |
+| **Time to Interactive** | When page is fully responsive | Correlates with user frustration |
+| **Speed Index** | Visual completeness | Measures perceived load speed |
+| **Total Blocking Time** | Main thread blockage | Explains jank/stutter |
+
+### Why User-centric Metrics Matter More
+
+**Example scenario:**
+- **Browser says:** Load event fired at 3s (good!)
+- **User says:** "I clicked at 2.5s and nothing happened for 2 seconds" (terrible!)
+
+User-centric metrics bridge this gap by measuring what users actually experience.
+
+---
+
+## 3. Measurement & Monitoring
+
+### Lab Data vs Field Data
+
+| Aspect | Lab Data | Field Data (RUM) |
+|--------|----------|------------------|
+| **Source** | Synthetic testing | Real users |
+| **Environment** | Controlled | Variable |
+| **Devices** | Limited set | Diverse real devices |
+| **Network** | Simulated | Real-world conditions |
+| **Use Case** | Debugging, regression | Performance monitoring, prioritization |
+
+### Measurement Tools Landscape
+
+```mermaid
+graph LR
+    A[Performance Measurement] --> B[Lab Tools]
+    A --> C[Field Tools]
+    
+    B --> B1[Lighthouse]
+    B --> B2[Chrome DevTools]
+    B --> B3[WebPageTest]
+    
+    C --> C1[CrUX Dashboard]
+    C --> C2[RUM Libraries]
+    C --> C3[APM Tools]
+```
+
+### When to Use Each
+
+| Scenario | Recommended Tool | Why |
+|----------|-----------------|-----|
+| **Local debugging** | Chrome DevTools Performance panel | Detailed flame charts, task analysis |
+| **CI/CD regression** | Lighthouse CI | Automated scoring, trend tracking |
+| **Competitive analysis** | WebPageTest | Geographic testing, filmstrip view |
+| **Production monitoring** | RUM (Real User Monitoring) | Real user experience, percentile data |
+| **SEO impact** | CrUX Dashboard | Google's field data, search ranking correlation |
+
+### Implementing RUM (Real User Monitoring)
+
+```javascript
+// Basic Web Vitals collection
+import {onLCP, onINP, onCLS} from 'web-vitals';
+
+// Send to analytics endpoint
+const sendToAnalytics = ({name, value, id}) => {
+  ga('send', 'event', {
+    eventCategory: 'Web Vitals',
+    eventAction: name,
+    eventValue: Math.round(value),
+    eventLabel: id,
+    nonInteraction: true,
+  });
+};
+
+// Register listeners
+onLCP(sendToAnalytics);
+onINP(sendToAnalytics);
+onCLS(sendToAnalytics);
+```
+
+---
+
+## 4. System Design & Interview Perspective
+
+### Talking About Performance in Interviews
+
+**Common Interview Question:** "How would you design a performant e-commerce homepage?"
+
+**Structured Response Framework:**
+
+```javascript
+1. DEFINE GOALS
+   - "For an e-commerce site, our primary goals would be:
+     • LCP < 2.5s (critical for bounce rate)
+     • INP < 200ms (smooth interactions)
+     • CLS < 0.1 (stable shopping experience)"
+
+2. ARCHITECTURE DECISIONS
+   - "I'd recommend a hybrid rendering approach:
+     • SSR for above-the-fold content (hero, navigation)
+     • CSR for personalized recommendations
+     • Static generation for footer/header"
+
+3. RESOURCE STRATEGY
+   - "For resource loading:
+     • Critical CSS inlined for hero section
+     • Images: WebP with srcset, prioritized loading
+     • Code splitting by route and component"
+
+4. PERFORMANCE BUDGETS
+   - "We'd establish budgets:
+     • JavaScript: < 300KB compressed
+     • CSS: < 50KB critical
+     • Images: < 100KB above-the-fold"
+```
+
+### Tradeoffs and Decisions
+
+| Decision | Performance Benefit | Tradeoff/Complexity |
+|----------|-------------------|---------------------|
+| **SSR** | Better FCP, LCP, SEO | Server load, hydration overhead |
+| **CSR** | Faster subsequent navigation | Worse initial load |
+| **Islands Architecture** | Partial hydration, best of both | Framework complexity |
+| **Edge CDN** | Lower TTFB globally | Cache invalidation complexity |
+| **GraphQL** | Precise data fetching | N+1 queries, caching complexity |
+
+### Common Interview Pitfalls to Avoid
+
+1. **"Just add caching"** - Not a silver bullet, can mask real issues
+2. **Focusing only on lab metrics** - Field data tells the real story
+3. **Ignoring mobile** - Mobile has different constraints and usage patterns
+4. **Over-optimizing** - The 90/10 rule: 90% of gains from 10% of optimizations
+5. **Forgetting business context** - Performance must serve business goals
+
+### Practical Example: Image Loading Strategy
+
+```javascript
+// Interview explanation flow:
+"Here's how I'd approach image optimization:
+
+1. MEASUREMENT FIRST
+   - Use Lighthouse to identify problematic images
+   - Check field data for device/network patterns
+
+2. IMPLEMENTATION STRATEGY
+   <img
+     src="image-400w.webp"
+     srcset="image-400w.webp 400w,
+             image-800w.webp 800w,
+             image-1200w.webp 1200w"
+     sizes="(max-width: 600px) 400px,
+            (max-width: 1200px) 800px,
+            1200px"
+     width="1200"
+     height="800"
+     alt="Product image"
+     loading="lazy" // Except for LCP element!
+   />
+
+3. LCP-SPECIFIC HANDLING
+   - Identify LCP element early (using PerformanceObserver)
+   - Preload LCP image with high priority
+   - Use fetchpriority='high' for critical images
+
+4. MONITORING
+   - Track LCP distribution across devices
+   - Monitor CLS impact of images
+   - A/B test new formats like AVIF"
+```
+
+### Interview Response Template
+
+When asked about performance optimization:
+
+1. **Acknowledge complexity:** "Performance is multi-faceted, so I'd approach it holistically..."
+2. **Prioritize by impact:** "Based on Core Web Vitals, I'd focus first on LCP since..."
+3. **Consider constraints:** "Given our constraints of [X], I'd recommend [Y] because..."
+4. **Measure and iterate:** "We'd implement monitoring first, then optimize based on data..."
+5. **Balance tradeoffs:** "The tradeoff here is between [A] and [B], so we'd choose based on..."
+
+### Key Takeaways for Interviews
+
+1. **User-centric thinking:** Always frame performance in terms of user experience
+2. **Data-driven decisions:** Emphasize measurement before optimization
+3. **Holistic approach:** Consider network, rendering, JavaScript, and assets together
+4. **Progressive enhancement:** Design for the slowest device/network first
+5. **Continuous monitoring:** Performance isn't a one-time fix
+
+Remember: In system design interviews, you're evaluated not just on technical knowledge, but on your ability to make reasoned tradeoffs and communicate complex concepts clearly. Always bring it back to **user impact** and **business value**.

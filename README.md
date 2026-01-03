@@ -32,5 +32,4 @@
 
 
 ## Performance
-
-- 
+- Performance monitoring 
