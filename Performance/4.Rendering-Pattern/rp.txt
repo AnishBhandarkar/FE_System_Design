@@ -1,0 +1,15 @@
+Rendering pattern:
+
+1.Client side -  Client Side Rendering (CSR)
+
+2. Server side
+- Static - Static Site Generation (SSG)
+- Dynamic - Server Side Rendering (SSR)
+
+CSR + SSR -> React Server Component (RSC)
+
+
+
+Refer:
+(This has all patterns)
+https://www.patterns.dev/react/client-side-rendering/

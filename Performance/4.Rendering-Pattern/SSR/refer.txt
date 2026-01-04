@@ -1,0 +1,6 @@
+https://developer.mozilla.org/en-US/docs/Glossary/SSR
+
+https://www.debugbear.com/blog/server-side-rendering
+
+https://www.patterns.dev/react/server-side-rendering/
+

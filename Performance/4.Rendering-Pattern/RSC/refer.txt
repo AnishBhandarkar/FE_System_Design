@@ -1,0 +1,7 @@
+https://www.patterns.dev/react/react-server-components/
+
+https://react.dev/reference/rsc/server-components
+
+https://nextjs.org/docs/app/getting-started/server-and-client-components
+
+https://react.dev/blog/2025/12/03/critical-security-vulnerability-in-react-server-components

@@ -1,0 +1,3 @@
+https://www.patterns.dev/react/incremental-static-rendering/
+
+https://nextjs.org/docs/pages/guides/incremental-static-regeneration

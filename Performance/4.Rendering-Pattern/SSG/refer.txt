@@ -1,0 +1,5 @@
+https://www.patterns.dev/react/static-rendering/
+
+https://nextjs.org/docs/pages/building-your-application/rendering/static-site-generation
+
+https://developer.mozilla.org/en-US/blog/static-site-generation-with-nextjs/
