@@ -1,0 +1,9 @@
+FE Performance:
+
+https://www.greatfrontend.com/blog/front-end-performance-techniques
+
+https://www.freecodecamp.org/news/the-front-end-performance-optimization-handbook/#heading-use-transform-and-opacity-properties-to-implement-animations
+
+https://medium.com/@bryomajor/optimizing-front-end-framework-performance-strategies-and-code-snippets-ee97ed9971ae
+
+https://dev.to/lovestaco/frontend-performance-optimization-best-practices-for-faster-websites-3aji

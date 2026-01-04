@@ -1,0 +1,115 @@
+Build Optimization
+
+- For build optimizations, we use bundlers (Ex: Webpack, vite, parcel, esbuild)
+
+- Build Optimization:
+    1. Customer experiance
+    2. Developer experiance
+
+
+---
+
+1. Customer experiance:
+    - Code splitting
+    - Tree shaking (Dead code elimination)
+    - Minification
+    - Code obsfucation
+    - Compression
+    - Optimizing images and assests
+    - Remove sourcemaps in production
+    - Profiling and analyzing bundles
+    - Pre-rendering
+    - Cache using asset hashing
+    - Vendor chunk splitting
+
+
+2. Developer experiance:
+    - Faster builds
+    - Parallelization
+    - Cache management
+    - Incremental compilation
+    - Hot module replacement (HMR)
+    - Monorepos with tols like lerna monorepo
+
+
+
+---
+
+> 1. Customer Experience (User-facing performance)
+
+These optimizations focus on making the website load faster, feel smoother, and use less data for end users.
+
+> Code Splitting:
+Breaking the JavaScript bundle into smaller chunks so only the code needed for the current page is loaded, reducing initial load time.
+
+
+> Tree Shaking (Dead Code Elimination):
+Removing unused code from the final build so users download only what is actually needed.
+
+
+> Minification:
+Reducing file size by removing spaces, comments, and shortening variable names without changing functionality.
+
+
+> Code Obfuscation:
+Making the code harder to read by renaming variables and restructuring it, mainly to protect business logic and reduce reverse engineering.
+
+
+> Compression:
+Compressing files (e.g., Gzip or Brotli) before sending them to the browser so they download faster over the network.
+
+
+> Optimizing Images and Assets:
+Reducing image sizes and using modern formats (like WebP) to improve loading speed without losing visual quality.
+
+
+> Remove Sourcemaps in Production:
+Excluding source maps from production builds to reduce bundle size and prevent exposing source code.
+
+
+> Profiling and Analyzing Bundles:
+Inspecting bundle size and content to find large or unnecessary dependencies that slow down page loading.
+
+
+> Pre-rendering:
+Generating static HTML pages at build time so content loads instantly before JavaScript runs.
+
+
+> Cache Using Asset Hashing:
+Adding unique hashes to filenames so browsers cache files efficiently and only download new versions when the content changes.
+
+
+> Vendor Chunk Splitting:
+Separating third-party libraries (like React or Lodash) into separate bundles so they can be cached and reused across multiple pages.
+
+
+---
+
+> 2. Developer Experience (Build-time productivity)
+
+These optimizations focus on making development faster, smoother, and easier to scale.
+
+> Faster Builds:
+Reducing build time so developers can see changes quickly and iterate faster.
+
+
+> Parallelization:
+Running multiple build tasks at the same time to improve overall build performance.
+
+
+> Cache Management:
+Reusing previously built results so unchanged code does not need to be rebuilt again.
+
+
+> Incremental Compilation:
+Only recompiling the files that changed instead of rebuilding the entire project.
+
+
+> Hot Module Replacement (HMR):
+Updating code in the browser instantly without a full page reload, preserving application state during development.
+
+
+> Monorepos with Tools like Lerna:
+Managing multiple related projects in a single repository to share code, dependencies, and build processes efficiently.
+
+

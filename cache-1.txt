@@ -1,1 +1,0 @@
-"I am preparing for frontend system design. In that current i am learning security module. And in that i wanna know about SSJI. So explain in detail.". Enhnace the prompt so that i can get all nesesary details and give that prompt to ai tool.

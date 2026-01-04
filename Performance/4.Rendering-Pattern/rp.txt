@@ -9,6 +9,11 @@ Rendering pattern:
 CSR + SSR -> React Server Component (RSC)
 
 
+Note:
+-----
+In explaination React + Nextjs (App, Pages router) used.
+
+
 
 Refer:
 (This has all patterns)
