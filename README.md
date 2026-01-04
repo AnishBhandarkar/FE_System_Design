@@ -35,3 +35,4 @@
 - Performance monitoring
 - Performance tools
 - Network optimization
+- Build optimization
