@@ -13,3 +13,5 @@ CSR + SSR -> React Server Component (RSC)
 Refer:
 (This has all patterns)
 https://www.patterns.dev/react/client-side-rendering/
+
+https://chat.deepseek.com/share/4afk73ysi9pocdih05
