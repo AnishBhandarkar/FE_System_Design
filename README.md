@@ -35,4 +35,5 @@
 - Performance monitoring
 - Performance tools
 - Network optimization
+- Rendering pattern
 - Build optimization
