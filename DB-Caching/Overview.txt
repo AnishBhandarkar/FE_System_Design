@@ -1,0 +1,19 @@
+Overview.
+
+
+Cache techniques;
+- HTTP Cache
+- Service worker
+- API caching
+- State management
+
+
+Databases:
+- localstorage
+- sessionstorage
+- cookie
+- indexedDB
+
+
+Normalization
+

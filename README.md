@@ -37,3 +37,7 @@
 - Network optimization
 - Rendering pattern
 - Build optimization
+
+
+## Database and caching
+- Localstorage
