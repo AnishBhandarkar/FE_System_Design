@@ -13,6 +13,7 @@ Databases:
 - sessionstorage
 - cookie
 - indexedDB
+- service worker
 
 
 Normalization

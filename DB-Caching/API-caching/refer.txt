@@ -1,0 +1,6 @@
+React:
+https://medium.com/@dev.sreerages/efficient-caching-in-react-with-redux-optimizing-frontend-performance-6a487abbbed9
+
+https://dev.to/nisabmohd/create-your-own-api-fetching-caching-mechanism-in-react-49oc
+
+https://namastedev.com/blog/data-fetching-with-swr-and-react-query/

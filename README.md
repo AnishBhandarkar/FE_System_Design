@@ -47,4 +47,3 @@
 - Http Cache
 - Service worker
 - API Cache
-- State management
