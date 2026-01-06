@@ -1,0 +1,5 @@
+https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API
+
+https://web.dev/articles/indexeddb
+
+https://dexie.org/

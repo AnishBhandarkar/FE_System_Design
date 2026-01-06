@@ -43,3 +43,5 @@
 - Localstorage
 - Sessionstorage
 - Cookie
+- IndexedDB
+- 
