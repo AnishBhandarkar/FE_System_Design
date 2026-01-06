@@ -1,0 +1,7 @@
+https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Cookies
+
+https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Set-Cookie
+
+https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Cookie
+
+https://privacysandbox.google.com/cookies/basics/cookie-attributes

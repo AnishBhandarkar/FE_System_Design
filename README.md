@@ -41,3 +41,5 @@
 
 ## Database and caching
 - Localstorage
+- Sessionstorage
+- Cookie
