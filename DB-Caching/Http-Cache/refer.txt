@@ -1,0 +1,20 @@
+> Http cache:
+https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Caching
+https://web.dev/articles/http-cache
+
+
+> Cache-control:
+https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Cache-Control
+
+> Expires:
+https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Expires
+
+> ETag:
+https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/ETag
+
+> last-modified:
+https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Last-Modified
+
+> vary:
+https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Vary
+https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Caching#vary

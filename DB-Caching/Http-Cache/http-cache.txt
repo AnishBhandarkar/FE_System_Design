@@ -1,0 +1,299 @@
+HTTP Caching
+
+---
+
+1. What HTTP Caching Is
+
+HTTP caching means storing a copy of an HTTP response so it can be reused instead of fetching it again from the origin server.
+
+Caches can exist at multiple levels:
+
+* Browser cache (most common)
+* Shared caches
+  * CDN (Cloudflare, Fastly, Akamai)
+  * Reverse proxies (Varnish, NGINX)
+* Proxy caches (corporate / ISP)
+
+Each cache follows HTTP rules defined primarily in RFC 9111 (HTTP Caching).
+
+
+---
+
+2. Cacheability: What Can Be Cached?
+
+> A response is cacheable if:
+By default
+* GET and HEAD responses are cacheable
+* POST, PUT, DELETE are not cacheable unless explicitly allowed
+
+
+> Explicit cache permission:
+A response becomes cacheable if it includes:
+* Cache-Control headers (most important)
+* or Expires
+
+
+> Responses typically cached
+* Static assets (CSS, JS, images)
+* API responses (with correct headers)
+* HTML pages (with care)
+
+
+> Responses typically not cached:
+* Authenticated content
+* Personalized data
+* Payment / sensitive responses
+
+
+---
+
+3. The Cache-Control Header (Most Important)
+
+Cache-Control is the primary mechanism controlling caching behavior.
+
+Common directives:
+
+1. max-age:
+
+Cache-Control: max-age=3600
+
+* Response is fresh for 3600 seconds
+* During this time, cache is used without contacting server
+
+
+2. public:
+
+Cache-Control: public
+* Can be cached by shared caches (CDNs)
+
+
+3. private
+
+Cache-Control: private
+
+* Only cacheable by browser
+* Not stored by shared caches (i.e CDN)
+
+4. no-store
+
+Cache-Control: no-store
+
+* Never cache (disk or memory)
+* Used for sensitive data
+
+
+5. no-cache
+
+Cache-Control: no-cache
+
+* Can be stored
+* Must revalidate with server before reuse
+
+6. must-revalidate
+
+Cache-Control: must-revalidate
+
+* Cache must not serve stale content
+* Often used with APIs
+
+---
+
+Example:
+
+Cache-Control: public, max-age=86400, must-revalidate
+
+
+---
+
+4. Freshness vs Validation
+
+Caching has two phases
+
+1️⃣ Freshness:
+If content is fresh, the cache serves it directly.
+
+Controlled by:
+* Cache-Control: max-age
+* Expires (legacy)
+
+
+2️⃣ Validation (Revalidation)
+When content becomes stale, cache asks server:
+
+> “Has this changed?”
+If not changed → reuse cached copy
+If changed → download new response
+
+---
+
+5. Validation Headers (ETag & Last-Modified):
+
+> ETag (Entity Tag)
+A unique identifier for a version of the resource.
+
+Server response:
+ETag: "v1.2.3"
+
+
+Client revalidation:
+If-None-Match: "v1.2.3"
+
+Server response:
+304 Not Modified
+
+✔ No body transferred
+✔ Cached response reused
+
+---
+
+> Last-Modified:
+
+Timestamp-based validation.
+
+Server response:
+Last-Modified: Tue, 10 Oct 2023 10:00:00 GMT
+
+
+Client request:
+If-Modified-Since: Tue, 10 Oct 2023 10:00:00 GMT
+
+Less precise than ETags but widely supported.
+
+---
+
+6. 304 Not Modified Responses
+
+When content hasn’t changed:
+
+HTTP/1.1 304 Not Modified
+
+* No response body
+* Cache updates metadata (headers)
+* Client renders cached version
+
+This is validation-based caching, not freshness-based.
+
+---
+
+7. The Vary Header
+
+Vary tells caches which request headers affect the response.
+
+Example:
+Vary: Accept-Encoding
+
+Means:
+* Separate cache entries for gzip vs brotli
+
+Dangerous example:
+Vary: Cookie
+
+This often kills cache effectiveness because every user has different cookies.
+
+---
+
+8. Browser Cache vs Shared Cache
+
+| Feature       | Browser Cache            | CDN / Proxy Cache |
+| ------------- | ------------------------ | ----------------- |
+| Scope         | Per user                 | Shared            |
+| Controlled by | Cache-Control: private   | public          |
+| Auth content  | Allowed                  | Usually blocked   |
+| Security risk | Low                      | Higher            |
+
+---
+
+9. Caching with Authentication
+
+By default:
+
+Authorization: Bearer ...
+
+→ response is not cached
+
+To allow caching:
+
+Cache-Control: public, max-age=60
+
+This must be done carefully to avoid leaking user data.
+
+---
+
+10. Cache Busting
+
+When deploying new assets:
+
+/app.js - Bad 
+
+/app.9f3a1c.js - Good
+
+Then:
+
+Cache-Control: public, max-age=31536000, immutable
+
+The immutable directive tells browsers:
+
+> “This will never change.”
+
+---
+
+11. Common Caching Patterns
+
+> Static Assets:
+Cache-Control: public, max-age=31536000, immutable
+
+
+> HTML Pages:
+Cache-Control: no-cache
+(Cacheable but revalidated)
+
+
+> APIs (Safe Default):
+Cache-Control: private, max-age=0, must-revalidate
+
+
+Sensitive Data:
+Cache-Control: no-store
+
+
+---
+
+12. Cache Invalidation (The Hard Part)
+
+Ways to invalidate cache:
+
+1. Time-based (TTL expiration)
+2. Revalidation (ETag / Last-Modified)
+3. URL versioning (best for static assets)
+4. Manual purge (CDN APIs)
+
+> “There are only two hard things in computer science: cache invalidation and naming things.”
+
+---
+
+13. Common Mistakes
+
+* Using no-cache when no-store is required
+* Forgetting Vary
+* Caching personalized responses
+* Not versioning static assets
+* Overusing short max-age values
+
+---
+
+14. Summary
+
+HTTP caching works by:
+
+1. Deciding if something can be cached
+2. Deciding how long it stays fresh
+3. Deciding how to validate it when stale
+
+Correct caching:
+* Makes sites faster
+* Saves bandwidth
+* Reduces server costs
+* Improves scalability
+
+---
+

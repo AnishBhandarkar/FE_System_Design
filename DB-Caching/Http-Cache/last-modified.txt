@@ -1,0 +1,178 @@
+1. What is Last-Modified?
+
+Last-Modified is an HTTP response header sent by the server.
+It tells the client (browser, proxy, CDN):
+
+> “This resource was last changed at this exact date & time.”
+
+Example:
+Last-Modified: Wed, 03 Jan 2026 10:15:30 GMT
+
+It’s mainly used for cache validation, not cache expiration.
+
+---
+
+2. First Request (No Cache Yet)
+
+> Client → Server
+The browser requests a resource for the first time:
+    GET /style.css HTTP/1.1
+    Host: example.com
+
+> Server → Client
+The server sends the resource along with cache-related headers:
+    HTTP/1.1 200 OK
+    Content-Type: text/css
+    Content-Length: 4200
+    Last-Modified: Wed, 03 Jan 2026 10:15:30 GMT
+    Cache-Control: public
+
+
+What the browser does:
+* Stores the response body (style.css)
+* Stores the Last-Modified timestamp
+* Saves them in its HTTP cache
+
+At this point, the browser does not know when the resource will change—only when it last changed.
+
+---
+
+3. Second Request (Cache Validation):
+
+Later, the browser needs style.css again.
+
+Browser checks its cache,
+* It has a cached copy
+* It has a Last-Modified value
+* It wants to check if the cached version is still valid
+
+Instead of downloading the whole file again, it sends a conditional request.
+
+---
+
+4. Conditional Request with If-Modified-Since
+
+Client → Server
+
+The browser sends:
+GET /style.css HTTP/1.1
+Host: example.com
+If-Modified-Since: Wed, 03 Jan 2026 10:15:30 GMT
+
+
+This means:
+> “Only send me the file if it has changed since this time.”
+
+---
+
+5. Server Decision
+
+The server compares:
+
+* The file’s current last modification time
+* The If-Modified-Since value
+
+Case A: Resource NOT changed
+If the file has not been modified since that date:
+
+Server → Client
+HTTP/1.1 304 Not Modified
+
+Important points:
+* No response body is sent
+* Browser keeps using its cached copy
+* Saves bandwidth and speeds things up
+
+- This is the most common success path for caching
+
+---
+
+Case B: Resource HAS changed
+
+If the file was modified after that timestamp:
+
+Server → Client
+
+HTTP/1.1 200 OK
+Content-Type: text/css
+Content-Length: 4500
+Last-Modified: Thu, 04 Jan 2026 09:20:00 GMT
+
+
+What happens now:
+
+* Browser discards the old cached version
+* Stores the new file
+* Updates the Last-Modified value
+
+---
+
+6. Timeline Summary
+
+
+1. GET /file
+   ← 200 OK + Last-Modified
+
+2. Cache stores file + timestamp
+
+3. GET /file
+   If-Modified-Since: <timestamp>
+
+4a. ← 304 Not Modified  (use cache)
+OR
+4b. ← 200 OK (new file + new Last-Modified)
+
+
+---
+
+7. How Last-Modified Differs from Cache-Control
+
+Last-Modified does NOT say:
+
+* how long something can be cached
+* when it expires
+
+It only helps answer:
+
+> “Has this changed since last time?”
+
+That’s why it’s often combined with:
+
+* Cache-Control: max-age=...
+* or Expires
+
+---
+
+8. Limitations of Last-Modified
+
+1. Time granularity
+
+   * Usually seconds, not milliseconds
+   * Multiple updates within a second may be missed
+
+2. Content may change without timestamp change
+
+   * Dynamic content
+   * Generated files
+
+3. Less precise than ETag
+
+   * That’s why many servers use both
+
+---
+
+9. Last-Modified vs ETag (Quick Comparison)
+
+| Feature            | Last-Modified     | ETag                   |
+| ------------------ | ----------------- | ---------------------- |
+| Based on           | Timestamp         | Content hash / version |
+| Precision          | Lower             | Higher                 |
+| Conditional header | If-Modified-Since | If-None-Match          |
+| CPU cost           | Low               | Higher                 |
+
+---
+
+One-Sentence Summary:
+
+Last-Modified enables HTTP caching by letting the client ask the server “Has this resource changed since this time?”—and the server answers with either 304 Not Modified or a fresh 200 OK.
+

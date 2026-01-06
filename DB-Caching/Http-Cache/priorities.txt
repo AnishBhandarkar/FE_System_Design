@@ -1,0 +1,8 @@
+The four headers:
+
+* Cache-Control
+* Expires
+* ETag
+* Last-Modified
+
+> When all four are present, Cache-Control controls freshness, Expires is ignored, and once stale the browser revalidates using ETag first and Last-Modified only as fallback.
