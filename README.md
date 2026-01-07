@@ -47,3 +47,4 @@
 - Http Cache
 - Service worker
 - API Cache
+- Normalization

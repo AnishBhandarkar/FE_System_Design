@@ -1,0 +1,7 @@
+Refer this first:
+https://adityaksi.hashnode.dev/guide-to-data-normalisation-in-frontend
+
+
+Advanced:
+https://learnersbucket.com/examples/interview/data-normalization-of-frontend-state/
+https://alfredayibonte.medium.com/front-end-normalization-8e3d0df7cb47
