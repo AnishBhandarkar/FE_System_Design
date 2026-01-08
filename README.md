@@ -48,3 +48,6 @@
 - Service worker
 - API Cache
 - Normalization
+
+
+## Logging and monitoring

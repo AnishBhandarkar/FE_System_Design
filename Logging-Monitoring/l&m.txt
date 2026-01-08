@@ -1,0 +1,7 @@
+https://chat.deepseek.com/share/p5j1f5ji8rcx0swfpt
+
+
+Refer:
+https://tianyaschool.medium.com/frontend-error-monitoring-and-log-collection-practices-87dd7ef6576d
+
+https://blog.pixelfreestudio.com/best-practices-for-logging-and-monitoring-frontend-applications/
